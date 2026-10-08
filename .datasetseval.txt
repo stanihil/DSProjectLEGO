@@ -1,0 +1,2 @@
+First dataset : https://mostwiedzy.pl/en/open-research-data/lego-bricks-for-training-classification-network,202309140842198941751-0
+10% pics and 90%renders, 6GB
