@@ -119,7 +119,7 @@ def train_one_epoch(
 ) -> float:
     model.train()
     total_loss = 0.0
-    for images, targets in loader:
+    for batch_index, (images, targets) in enumerate(loader, start=1):
         images = [image.to(device) for image in images]
         targets = [{key: value.to(device) for key, value in target.items()} for target in targets]
         loss_dict = model(images, targets)
@@ -128,6 +128,10 @@ def train_one_epoch(
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
+        print(
+            f"  batch {batch_index}/{len(loader)} loss={loss.item():.4f}",
+            flush=True,
+        )
     return total_loss / max(1, len(loader))
 
 
@@ -191,7 +195,7 @@ def benchmark(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=Path("Legosteine_comp"))
-    parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--epochs", type=int, default=2, help="Set to 0 with --benchmark-only.")
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--learning-rate", type=float, default=0.005)
     parser.add_argument("--validation-fraction", type=float, default=0.2)
@@ -200,14 +204,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=Path("faster_rcnn_result.jpg"))
     parser.add_argument("--max-images", type=int, default=0, help="Optional cap for a quick smoke test.")
     parser.add_argument("--no-pretrained", action="store_true")
+    parser.add_argument(
+        "--benchmark-only",
+        action="store_true",
+        help="Skip training and measure one inference pass with an initialized model.",
+    )
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    if args.epochs < 1 or args.batch_size < 1:
-        raise ValueError("--epochs and --batch-size must be positive")
+    if args.epochs < 0 or args.batch_size < 1:
+        raise ValueError("--epochs must be non-negative and --batch-size must be positive")
+    if args.epochs == 0 and not args.benchmark_only:
+        raise ValueError("--epochs=0 requires --benchmark-only")
     if not 0 < args.validation_fraction < 1:
         raise ValueError("--validation-fraction must be between 0 and 1")
     if args.device == "cuda" and not torch.cuda.is_available():
@@ -229,6 +240,12 @@ def main() -> None:
     validation_loader = DataLoader(
         validation_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn
     )
+    print(
+        f"Device: {device}; classes: {len(class_names)}; "
+        f"train: {len(train_dataset)}; validation: {len(validation_dataset)}",
+        flush=True,
+    )
+    print("Building Faster R-CNN model...", flush=True)
     model = build_model(len(class_names) + 1, not args.no_pretrained).to(device)
     optimizer = torch.optim.SGD(
         (parameter for parameter in model.parameters() if parameter.requires_grad),
@@ -236,11 +253,19 @@ def main() -> None:
         momentum=0.9,
         weight_decay=0.0005,
     )
-    print(f"Device: {device}; classes: {len(class_names)}; train: {len(train_dataset)}; validation: {len(validation_dataset)}")
-    for epoch in range(args.epochs):
-        train_loss = train_one_epoch(model, train_loader, optimizer, device)
-        validation_loss = evaluate_loss(model, validation_loader, device)
-        print(f"Epoch {epoch + 1}/{args.epochs}: train_loss={train_loss:.4f}, validation_loss={validation_loss:.4f}")
+    if args.benchmark_only:
+        print("Benchmark-only mode: skipping training.", flush=True)
+    else:
+        for epoch in range(args.epochs):
+            print(f"Starting epoch {epoch + 1}/{args.epochs}...", flush=True)
+            train_loss = train_one_epoch(model, train_loader, optimizer, device)
+            validation_loss = evaluate_loss(model, validation_loader, device)
+            print(
+                f"Epoch {epoch + 1}/{args.epochs}: "
+                f"train_loss={train_loss:.4f}, validation_loss={validation_loss:.4f}",
+                flush=True,
+            )
+    print("Running timed inference...", flush=True)
     benchmark(model, validation_dataset, device, args.confidence, args.output)
 
 

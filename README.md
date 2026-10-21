@@ -172,6 +172,14 @@ python faster_rcnn_prototype.py --no-pretrained --epochs 1 --max-images 20 --dev
 
 The script prints training and validation loss, inference time in milliseconds per image, the number of detections above the confidence threshold, and the path to `faster_rcnn_result.jpg`. Record the reported inference time under the same hardware and image settings when the YOLO prototype is added.
 
+For a timing-only check that does not wait for training, run:
+
+```powershell
+python faster_rcnn_prototype.py --benchmark-only --no-pretrained --device cpu
+```
+
+This measures an initialized model rather than a trained model. For a trained timing comparison, run the normal command and wait for the per-batch progress messages before the final inference result.
+
 **Important limitation:** the current folders provide image-level class labels, not bounding boxes. Until proper annotations are created, the prototype treats the entire image as one brick and one bounding box. Its result demonstrates the training and timing workflow, but it is not yet a valid pile-of-bricks detector.
 
 ## YOLO prototype
