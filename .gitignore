@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Generated YOLO datasets, training runs, weights, and result images
+.yolo_dataset/
+runs/
+*.pt
+*_result.jpg
+
+# Local operating-system files
+.DS_Store
