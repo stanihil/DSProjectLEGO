@@ -53,9 +53,11 @@ Phone image of LEGO pile
 ### Phase 3: Modeling
 
 - Train a first YOLO transfer-learning baseline on the public dataset.
+- Run the Faster R-CNN prototype on the supplemental collection as the first detector baseline.
 - Record model variant, image size, epochs, hardware, training time, and configuration.
 - Evaluate on a held-out rendered/photo split and on the real-image test set.
 - Fine-tune on augmented real-world images.
+- Add a YOLO prototype and compare inference speed using the same input and hardware conditions.
 - Investigate failure cases involving small, occluded, overlapping, or visually similar bricks.
 
 **Exit criterion:** At least one reproducible baseline and one real-image fine-tuned model have comparable evaluation results.
@@ -120,7 +122,7 @@ Every experiment should record its dataset split, model configuration, preproces
 |---|---|---|
 | M1: Initial presentation | Problem, dataset, model direction, and downstream idea presented | Complete |
 | M2: Dataset audit | Public dataset and the 19-class supplemental collection are structurally documented | In progress |
-| M3: First training run | YOLO baseline produces saved predictions and metrics | Planned |
+| M3: First training run | Faster R-CNN baseline produces saved predictions and timing metrics | In progress |
 | M4: Real-image adaptation | Real images are labeled and used for fine-tuning | Planned |
 | M5: Pipeline integration | Detection output becomes inventory and set recommendations | Planned |
 | M6: Evaluation presentation | Quality, limitations, and current prototype demonstrated | Planned |

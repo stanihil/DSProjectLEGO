@@ -78,7 +78,7 @@ The current method is:
 - **Data augmentation:** Use transformations such as rotation, flipping, brightness changes, and mosaic augmentation.
 - **Real-image fine-tuning:** Use the supplemental collection in `Legosteine_comp/` as the starting point, add bounding-box labels and a leakage-safe split, then augment and fine-tune the pretrained detector.
 
-Faster R-CNN remains a possible comparison for small or overlapping objects. Random Forest may be used as a classical classification baseline, but it cannot directly solve the multi-object detection problem. The final choice must still be supported by evaluation results.
+Faster R-CNN is the first comparison prototype for small or overlapping objects. A YOLO prototype will be added afterward and measured with the same image and hardware settings. Random Forest may be used as a classical classification baseline, but it cannot directly solve the multi-object detection problem. The final choice must still be supported by evaluation results.
 
 ## Evaluation
 
@@ -122,11 +122,57 @@ The currently selected technologies are:
 
 - **Python:** Main programming language.
 - **YOLO:** Object-detection model and training framework.
+- **Faster R-CNN:** Initial two-stage object-detection prototype for comparison with YOLO.
 - **Git:** Source-code versioning and collaboration.
 - **Rebrickable API:** LEGO part and set data for the subsequent matching process.
 - **Streamlit or a similar tool:** Planned lightweight live-demo interface.
 
 The exact Python packages, model variant, and API endpoints will be recorded as implementation decisions are made.
+
+## Faster R-CNN prototype
+
+The first executable prototype is [`faster_rcnn_prototype.py`](faster_rcnn_prototype.py). It trains a small Faster R-CNN model on the supplemental `Legosteine_comp/` images, using the numeric folder name as the part-number class, then runs one timed inference and writes an annotated image.
+
+Create or use the repository virtual environment, then activate it before installing dependencies or running the prototype. On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks script execution, allow scripts for the current user once:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+On Windows Command Prompt, activate it with:
+
+```bat
+.venv\Scripts\activate.bat
+```
+
+Install the dependencies:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Run the prototype from the repository root:
+
+```powershell
+python faster_rcnn_prototype.py
+```
+
+The default run uses two epochs and a pretrained ResNet-50 FPN backbone. The first run may download the torchvision weights. For a faster CPU smoke test, use:
+
+```powershell
+python faster_rcnn_prototype.py --no-pretrained --epochs 1 --max-images 20 --device cpu
+```
+
+The script prints training and validation loss, inference time in milliseconds per image, the number of detections above the confidence threshold, and the path to `faster_rcnn_result.jpg`. Record the reported inference time under the same hardware and image settings when the YOLO prototype is added.
+
+**Important limitation:** the current folders provide image-level class labels, not bounding boxes. Until proper annotations are created, the prototype treats the entire image as one brick and one bounding box. Its result demonstrates the training and timing workflow, but it is not yet a valid pile-of-bricks detector.
 
 ## Presentation Requirements
 
@@ -175,6 +221,7 @@ The year for these dates should be confirmed with the course schedule.
 - [x] Rebrickable API selected for the subsequent process
 - [x] Git repository and development environment setup started
 - [x] Supplemental image collection added with part-number folder labels
+- [x] Executable Faster R-CNN prototype added
 - [ ] Public dataset downloaded and inspected in the repository workflow
 - [ ] Supplemental images annotated and split for training, validation, and testing
 - [ ] First YOLO transfer-learning run completed
