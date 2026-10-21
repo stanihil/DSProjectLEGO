@@ -2,39 +2,42 @@
 
 ## Project Summary
 
-This project develops a data-science prototype that identifies LEGO bricks in images and uses the detected brick information in a subsequent process. The project follows the complete workflow from understanding the problem and preparing data to training, evaluating, and demonstrating a working solution.
+This project develops a data-science prototype that identifies individual LEGO bricks in an image of a pile, classifies them by official LEGO part number, and finds LEGO sets that can be built from the detected inventory. The project follows the complete workflow from understanding the problem and preparing data to training, evaluating, and demonstrating a working solution.
 
-The project team will investigate both classical computer-vision methods and machine-learning/deep-learning methods. The final approach will be selected based on measured quality, functionality, and suitability for the available data.
+The current implementation direction is a YOLO-based object-detection model, trained first on the available public dataset and later adapted to real-world images. Detected part numbers and estimated quantities will be passed to the Rebrickable API for set matching.
 
 ## Problem Statement
 
-Given an image containing LEGO bricks, the tool should:
+Given an image containing a pile of LEGO bricks, the tool should:
 
-1. Detect or identify the LEGO bricks visible in the image.
-2. Provide useful information about the identified bricks, such as their class or type.
-3. Pass that information to a meaningful subsequent process.
-4. Demonstrate the result in a working prototype.
+1. Detect individual bricks, including bricks that may be close together or partially overlapping.
+2. Classify each detected brick by its official LEGO part number.
+3. Aggregate detections into a part inventory with estimated quantities.
+4. Query LEGO set data using the inventory.
+5. Return sets that can be built with the detected pieces.
+6. Demonstrate the complete pipeline in a working prototype.
 
-The intended input is a bag or collection of LEGO bricks photographed in an image. The later process may be refined as the project progresses and the expected use case becomes clearer.
+The intended input is a phone photograph of a bag or collection of LEGO bricks. The central product idea is an AI-powered system that recommends buildable LEGO sets from one image.
 
 ## Project Goals
 
 - Become familiar with the problem and the available data.
 - Break the overall problem into manageable sub-problems.
 - Prepare and analyze the image data.
-- Develop and compare suitable recognition methods.
-- Train and apply machine-learning or deep-learning models where appropriate.
+- Develop and evaluate a YOLO object-detection model.
+- Adapt the model to the domain gap between rendered training data and real photographs.
 - Evaluate all relevant approaches using documented metrics.
-- Combine the best components into a working prototype.
+- Connect detected part numbers and quantities to the Rebrickable API.
+- Combine the recognition and set-matching components into a working prototype.
 - Present the current status, technical choices, quality, and functionality.
 
 ## Planned Sub-problems
 
 - **Data understanding:** Explore image formats, labels, LEGO categories, and the difference between photographs and rendered images.
 - **Data preparation:** Organize the dataset, create training/validation/test splits, and apply suitable preprocessing or augmentation.
-- **Recognition:** Investigate classification, object detection, image matching, or classical computer-vision alternatives.
+- **Recognition:** Detect individual bricks and classify them by part number with YOLO.
 - **Evaluation:** Define metrics and test whether results generalize from rendered images to real photographs.
-- **Subsequent process:** Design a useful workflow based on the recognized bricks, such as listing, sorting, searching, or building-plan support.
+- **Subsequent process:** Aggregate detected part IDs and quantities, then find buildable sets through Rebrickable.
 - **Prototype:** Connect image input, recognition, result presentation, and the subsequent process into one demonstrable application.
 
 ## Dataset
@@ -47,23 +50,24 @@ Current notes:
 
 - Approximate size: **6 GB**
 - Approximate composition: **10% photographs and 90% rendered images**
-- Main expected use: training and evaluating LEGO-brick recognition methods
+- Reported classes: **447**, organized by official LEGO part number
+- Images are pre-sorted in folders by part number
+- Main expected use: pre-training and evaluating LEGO-brick recognition methods
 
-These details and the dataset license, label structure, class balance, and image quality still need to be verified during the data-understanding phase.
+The main risk is a domain gap: the dataset uses mostly rendered images and white backgrounds, while the prototype must handle phone photographs, real backgrounds, lighting changes, and imperfect viewpoints. The dataset license, exact label structure, class balance, and image quality still need to be verified during the data-understanding phase.
 
 ## Methods to Investigate
 
 The project must not use a pre-existing end-to-end tool that directly solves LEGO-brick recognition. Instead, the team will develop and evaluate its own approach using data-science techniques.
 
-Possible methods include:
+The current method is:
 
-- Classical image processing and feature-based matching
-- Transfer learning with a suitable image-classification model
-- A custom machine-learning or deep-learning classifier
-- Object detection or segmentation if images contain multiple bricks
-- Data augmentation to improve robustness to lighting, pose, scale, and background
+- **YOLO object detection:** A one-stage detector suited to fast inference and a lightweight live demo.
+- **Transfer learning:** Start from a pretrained model and train it on the LEGO dataset.
+- **Data augmentation:** Use transformations such as rotation, flipping, brightness changes, and mosaic augmentation.
+- **Real-image fine-tuning:** Collect and label at least five real-world images per target class, augment them, and fine-tune the pretrained detector.
 
-The final method will be chosen from experimental results rather than assumed in advance.
+Faster R-CNN remains a possible comparison for small or overlapping objects. Random Forest may be used as a classical classification baseline, but it cannot directly solve the multi-object detection problem. The final choice must still be supported by evaluation results.
 
 ## Evaluation
 
@@ -76,19 +80,21 @@ Evaluation should measure both recognition quality and practical usability. Depe
 - Detection metrics such as IoU or mAP, if object detection is used
 - Inference time and resource requirements
 - Performance on real photographs compared with rendered images
+- Set-recommendation quality, including whether returned sets satisfy required part quantities
 
 All experiments should document the dataset split, preprocessing, model or algorithm, parameters, metrics, and results. Test data must remain separate from training decisions.
 
 ## Prototype and Live Demonstration
 
-The prototype should allow a user to provide an image and receive recognizable, interpretable output. The live demonstration should show:
+The prototype should allow a user to provide an image and receive interpretable output. The live demonstration should show:
 
 1. Image input.
 2. Recognition results.
-3. Confidence or other quality information where available.
-4. The subsequent process using the recognized LEGO-brick information.
+3. Detected part numbers, quantities, and confidence values.
+4. A structured inventory sent to the Rebrickable API.
+5. LEGO sets that can be built with the detected pieces.
 
-The exact interface and subsequent process will be defined during development.
+The planned interface is a lightweight web application, for example Streamlit.
 
 ## Technology and Documentation
 
@@ -101,7 +107,15 @@ Source code will be written in Python and documented clearly. The project docume
 - How evaluation is performed and interpreted.
 - The current limitations and next development steps.
 
-Likely technology areas include Python, image-processing libraries, data-analysis tools, machine-learning/deep-learning frameworks, experiment tracking, and a lightweight interface for the prototype. The exact technologies will be recorded once selected.
+The currently selected technologies are:
+
+- **Python:** Main programming language.
+- **YOLO:** Object-detection model and training framework.
+- **Git:** Source-code versioning and collaboration.
+- **Rebrickable API:** LEGO part and set data for the subsequent matching process.
+- **Streamlit or a similar tool:** Planned lightweight live-demo interface.
+
+The exact Python packages, model variant, and API endpoints will be recorded as implementation decisions are made.
 
 ## Presentation Requirements
 
@@ -143,17 +157,23 @@ The year for these dates should be confirmed with the course schedule.
 
 ## Current Status
 
+- [x] Problem defined and end-to-end pipeline designed
 - [x] Initial task requirements documented
-- [x] Initial dataset reference recorded
-- [ ] Dataset downloaded and inspected
-- [ ] Problem definition and output format finalized
-- [ ] Baseline method implemented
-- [ ] Candidate methods trained and compared
+- [x] Dataset selected and reference recorded
+- [x] YOLO selected as the initial detection framework
+- [x] Rebrickable API selected for the subsequent process
+- [x] Git repository and development environment setup started
+- [ ] Dataset downloaded and inspected in the repository workflow
+- [ ] Real-world image collection and labeling completed
+- [ ] First YOLO transfer-learning run completed
 - [ ] Evaluation protocol and results documented
-- [ ] Subsequent process implemented
+- [ ] Rebrickable inventory and set-matching integration implemented
+- [ ] Lightweight live-demo interface implemented
 - [ ] Working prototype integrated
 - [ ] Presentation prepared
 - [ ] Final documentation and self-reflection completed
+
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the detailed work plan and milestones.
 
 ## Project Constraints
 
