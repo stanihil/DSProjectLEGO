@@ -35,13 +35,15 @@ Phone image of LEGO pile
 - Set up the Python environment, Git workflow, dependency file, and project directories.
 - Download or reference the public dataset without committing the approximately 6 GB dataset to Git.
 - Inspect the 447 classes, folder names, image dimensions, labels, and class distribution.
+- Audit the supplemental `Legosteine_comp/` collection: 19 part-number folders and 104 JPEG images, with each folder name used as the image-level class label.
 
 **Exit criterion:** The team can describe the dataset and reproduce a small exploratory data report.
 
 ### Phase 2: Data and Labels
 
 - Define the YOLO annotation format and conversion process if the source dataset is not already annotated for detection.
-- Collect phone photographs with varied backgrounds, lighting, orientations, distances, and overlap.
+- Use the collected images in `Legosteine_comp/` as the initial real-image collection and continue collecting phone photographs with varied backgrounds, lighting, orientations, distances, and overlap.
+- Confirm whether every image contains one brick or multiple bricks before creating annotations.
 - Label the real photographs with part-number classes and bounding boxes.
 - Split data by image or capture session to avoid near-duplicate leakage.
 - Apply controlled augmentation, including rotation, flipping, brightness changes, and mosaic augmentation.
@@ -117,7 +119,7 @@ Every experiment should record its dataset split, model configuration, preproces
 | Milestone | Target outcome | Status |
 |---|---|---|
 | M1: Initial presentation | Problem, dataset, model direction, and downstream idea presented | Complete |
-| M2: Dataset audit | Dataset structure, labels, and quality documented | Planned |
+| M2: Dataset audit | Public dataset and the 19-class supplemental collection are structurally documented | In progress |
 | M3: First training run | YOLO baseline produces saved predictions and metrics | Planned |
 | M4: Real-image adaptation | Real images are labeled and used for fine-tuning | Planned |
 | M5: Pipeline integration | Detection output becomes inventory and set recommendations | Planned |

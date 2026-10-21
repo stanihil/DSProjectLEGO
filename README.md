@@ -56,6 +56,17 @@ Current notes:
 
 The main risk is a domain gap: the dataset uses mostly rendered images and white backgrounds, while the prototype must handle phone photographs, real backgrounds, lighting changes, and imperfect viewpoints. The dataset license, exact label structure, class balance, and image quality still need to be verified during the data-understanding phase.
 
+### Supplemental image collection
+
+The repository also contains a locally collected image set in [`Legosteine_comp/`](Legosteine_comp/). Each subfolder is named with the official LEGO part number of the brick shown in its images, so the folder name is the class label:
+
+- **19 part-number classes**
+- **104 JPEG images**
+- **4–11 JPEG images per class**
+- Part numbers: `2654`, `3002`, `3003`, `3004`, `3005`, `3009`, `3010`, `3020`, `3021`, `3022`, `3023`, `3062`, `3622`, `3623`, `3666`, `3710`, `4073`, `54200`, and `6215`
+
+This collection is intended for the real-image/domain-adaptation stage and is separate from the public 447-class dataset. The folder names provide image-level class labels; object-detection bounding-box annotations and an explicit train/validation/test split still need to be created. The current collection does not yet provide five images for every target class, so additional captures or a revised fine-tuning scope may be required.
+
 ## Methods to Investigate
 
 The project must not use a pre-existing end-to-end tool that directly solves LEGO-brick recognition. Instead, the team will develop and evaluate its own approach using data-science techniques.
@@ -65,7 +76,7 @@ The current method is:
 - **YOLO object detection:** A one-stage detector suited to fast inference and a lightweight live demo.
 - **Transfer learning:** Start from a pretrained model and train it on the LEGO dataset.
 - **Data augmentation:** Use transformations such as rotation, flipping, brightness changes, and mosaic augmentation.
-- **Real-image fine-tuning:** Collect and label at least five real-world images per target class, augment them, and fine-tune the pretrained detector.
+- **Real-image fine-tuning:** Use the supplemental collection in `Legosteine_comp/` as the starting point, add bounding-box labels and a leakage-safe split, then augment and fine-tune the pretrained detector.
 
 Faster R-CNN remains a possible comparison for small or overlapping objects. Random Forest may be used as a classical classification baseline, but it cannot directly solve the multi-object detection problem. The final choice must still be supported by evaluation results.
 
@@ -163,8 +174,9 @@ The year for these dates should be confirmed with the course schedule.
 - [x] YOLO selected as the initial detection framework
 - [x] Rebrickable API selected for the subsequent process
 - [x] Git repository and development environment setup started
-- [ ] Dataset downloaded and inspected in the repository workflow
-- [ ] Real-world image collection and labeling completed
+- [x] Supplemental image collection added with part-number folder labels
+- [ ] Public dataset downloaded and inspected in the repository workflow
+- [ ] Supplemental images annotated and split for training, validation, and testing
 - [ ] First YOLO transfer-learning run completed
 - [ ] Evaluation protocol and results documented
 - [ ] Rebrickable inventory and set-matching integration implemented
