@@ -122,7 +122,7 @@ Every experiment should record its dataset split, model configuration, preproces
 |---|---|---|
 | M1: Initial presentation | Problem, dataset, model direction, and downstream idea presented | Complete |
 | M2: Dataset audit | Public dataset and the 19-class supplemental collection are structurally documented | In progress |
-| M3: First training run | Faster R-CNN baseline produces saved predictions and timing metrics | In progress |
+| M3: First training run | Faster R-CNN and YOLO baselines produce saved predictions and timing metrics | In progress |
 | M4: Real-image adaptation | Real images are labeled and used for fine-tuning | Planned |
 | M5: Pipeline integration | Detection output becomes inventory and set recommendations | Planned |
 | M6: Evaluation presentation | Quality, limitations, and current prototype demonstrated | Planned |

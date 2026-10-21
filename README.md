@@ -174,6 +174,24 @@ The script prints training and validation loss, inference time in milliseconds p
 
 **Important limitation:** the current folders provide image-level class labels, not bounding boxes. Until proper annotations are created, the prototype treats the entire image as one brick and one bounding box. Its result demonstrates the training and timing workflow, but it is not yet a valid pile-of-bricks detector.
 
+## YOLO prototype
+
+The comparison prototype is [`yolo_prototype.py`](yolo_prototype.py). It uses the same 19 classes, deterministic per-class split, full-image box assumption, two training epochs, and timed single-image inference as the Faster R-CNN prototype. It creates the temporary YOLO-format dataset in `.yolo_dataset/`.
+
+After activating `.venv` and installing the updated requirements, run:
+
+```powershell
+python yolo_prototype.py
+```
+
+For a quick CPU smoke test:
+
+```powershell
+python yolo_prototype.py --no-pretrained --epochs 1 --max-images 20 --device cpu
+```
+
+The default run downloads the small `yolov8n` pretrained weights. It prints inference time in milliseconds per image and saves `yolo_result.jpg`. Compare this value with Faster R-CNN only when using the same device, image, warm-up approach, and confidence threshold. The timing is an inference comparison, not a complete accuracy comparison.
+
 ## Presentation Requirements
 
 The presentation should take **10–15 minutes** and cover:
