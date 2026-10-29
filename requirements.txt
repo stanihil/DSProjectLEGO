@@ -1,3 +1,5 @@
+# using python 3.11
+
 Pillow>=10.0
 torch>=2.1
 torchvision>=0.16

@@ -1,0 +1,11 @@
+model,images_with_detection,total_detections,mean_top_conf,inference_ms
+yolov8n.pt,4/5,6,0.382,36.7
+yolov8m.pt,4/5,4,0.312,149.7
+yolov8x.pt,2/5,3,0.44,364.1
+yolo11n.pt,5/5,7,0.324,37.1
+yolo11m.pt,2/5,4,0.471,144.0
+yolo11x.pt,4/5,4,0.526,336.2
+yolov8s-worldv2.pt,3/5,3,0.296,90.5
+yolov8m-worldv2.pt,0/5,0,0.0,170.6
+yolov8l-worldv2.pt,0/5,0,0.0,270.1
+yolov8x-worldv2.pt,1/5,1,0.28,376.0

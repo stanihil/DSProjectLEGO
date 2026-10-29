@@ -1,0 +1,6 @@
+model,images_with_detection,total_detections,mean_top_conf,inference_ms
+yolo26n.pt,27/53,30,0.373,36.7
+yolo26s.pt,38/53,46,0.404,69.9
+yolo26m.pt,38/53,46,0.494,155.7
+yolo26l.pt,44/53,68,0.496,187.2
+yolo26x.pt,43/53,51,0.597,327.4
