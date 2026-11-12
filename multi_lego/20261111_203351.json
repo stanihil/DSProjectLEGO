@@ -1,0 +1,100 @@
+{
+  "version": "4.3.1",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "lego_brick",
+      "score": 0.9508397579193115,
+      "points": [
+        [
+          1621.4996673583985,
+          897.8596588134766
+        ],
+        [
+          2128.907229614258,
+          897.8596588134766
+        ],
+        [
+          2128.907229614258,
+          1382.672624206543
+        ],
+        [
+          1621.4996673583985,
+          1382.672624206543
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          896.7161458333331,
+          1178.6985677083333
+        ],
+        [
+          1081.64453125,
+          1178.6985677083333
+        ],
+        [
+          1081.64453125,
+          1378.1126302083333
+        ],
+        [
+          896.7161458333331,
+          1378.1126302083333
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          1133.1256510416665,
+          1978.373046875
+        ],
+        [
+          1323.34375,
+          1978.373046875
+        ],
+        [
+          1323.34375,
+          2188.48046875
+        ],
+        [
+          1133.1256510416665,
+          2188.48046875
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "20261111_203351.jpg",
+  "imageData": null,
+  "imageHeight": 2992,
+  "imageWidth": 2992
+}

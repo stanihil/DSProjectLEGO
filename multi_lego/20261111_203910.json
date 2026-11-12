@@ -1,0 +1,246 @@
+{
+  "version": "4.3.1",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "lego_brick",
+      "score": 0.9470592737197876,
+      "points": [
+        [
+          1004.3490196228028,
+          483.50079669952396
+        ],
+        [
+          1322.7369499206543,
+          483.50079669952396
+        ],
+        [
+          1322.7369499206543,
+          935.1684928894043
+        ],
+        [
+          1004.3490196228028,
+          935.1684928894043
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.9228108525276184,
+      "points": [
+        [
+          777.5554504394531,
+          1735.3990058898926
+        ],
+        [
+          1226.3080841064454,
+          1735.3990058898926
+        ],
+        [
+          1226.3080841064454,
+          1978.879648590088
+        ],
+        [
+          777.5554504394531,
+          1978.879648590088
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.9120901823043823,
+      "points": [
+        [
+          1601.6127983093263,
+          1709.099705505371
+        ],
+        [
+          1799.0990196228029,
+          1709.099705505371
+        ],
+        [
+          1799.0990196228029,
+          1930.0060104370118
+        ],
+        [
+          1601.6127983093263,
+          1930.0060104370118
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.8847149610519409,
+      "points": [
+        [
+          1346.6005935668945,
+          1256.8336883544923
+        ],
+        [
+          1559.5085510253907,
+          1256.8336883544923
+        ],
+        [
+          1559.5085510253907,
+          1426.0193817138672
+        ],
+        [
+          1346.6005935668945,
+          1426.0193817138672
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.5618587732315063,
+      "points": [
+        [
+          1907.177577972412,
+          1373.4958251953126
+        ],
+        [
+          2106.313346099854,
+          1373.4958251953126
+        ],
+        [
+          2106.313346099854,
+          1569.476025390625
+        ],
+        [
+          1907.177577972412,
+          1569.476025390625
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.5564080476760864,
+      "points": [
+        [
+          1934.0207351684571,
+          608.4751899719239
+        ],
+        [
+          2172.713954162598,
+          608.4751899719239
+        ],
+        [
+          2172.713954162598,
+          960.8627311706543
+        ],
+        [
+          1934.0207351684571,
+          960.8627311706543
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          552.9173177083331,
+          1552.7708333333333
+        ],
+        [
+          842.6634114583331,
+          1552.7708333333333
+        ],
+        [
+          842.6634114583331,
+          1856.7259114583333
+        ],
+        [
+          552.9173177083331,
+          1856.7259114583333
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          1492.044921875,
+          721.4069010416666
+        ],
+        [
+          1896.862630208333,
+          721.4069010416666
+        ],
+        [
+          1896.862630208333,
+          1150.8990885416665
+        ],
+        [
+          1492.044921875,
+          1150.8990885416665
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "20261111_203910.jpg",
+  "imageData": null,
+  "imageHeight": 2992,
+  "imageWidth": 2992,
+  "description": ""
+}

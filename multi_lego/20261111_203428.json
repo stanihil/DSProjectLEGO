@@ -1,0 +1,128 @@
+{
+  "version": "4.3.1",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "lego_brick",
+      "score": 0.945842444896698,
+      "points": [
+        [
+          1079.7156322479248,
+          471.94212741851806
+        ],
+        [
+          1383.1591278076173,
+          471.94212741851806
+        ],
+        [
+          1383.1591278076173,
+          1019.4008132934571
+        ],
+        [
+          1079.7156322479248,
+          1019.4008132934571
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.8986631631851196,
+      "points": [
+        [
+          605.9002876281738,
+          1417.9506980895997
+        ],
+        [
+          865.3333976745606,
+          1417.9506980895997
+        ],
+        [
+          865.3333976745606,
+          1650.8321250915528
+        ],
+        [
+          605.9002876281738,
+          1650.8321250915528
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "lego_brick",
+      "score": 0.8343135118484497,
+      "points": [
+        [
+          1169.4673431396484,
+          1630.3186508178712
+        ],
+        [
+          1834.5385955810548,
+          1630.3186508178712
+        ],
+        [
+          1834.5385955810548,
+          2172.654888916016
+        ],
+        [
+          1169.4673431396484,
+          2172.654888916016
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          1730.9609375,
+          793.6236979166666
+        ],
+        [
+          1938.1875,
+          793.6236979166666
+        ],
+        [
+          1938.1875,
+          1030.5703124999998
+        ],
+        [
+          1730.9609375,
+          1030.5703124999998
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "20261111_203428.jpg",
+  "imageData": null,
+  "imageHeight": 2992,
+  "imageWidth": 2992
+}

@@ -1,0 +1,14 @@
+# X-AnyLabeling Modell-Konfiguration für LEGO-Steine
+type: yolov8
+name: lego_detector
+display_name: LEGO Stein Detektor
+model_path: best.onnx
+
+# Detection-Parameter
+nms_threshold: 0.45
+confidence_threshold: 0.25
+
+# Klassen-Namen (müssen exakt mit den Class-IDs im Modell übereinstimmen!)
+classes:
+  0: "lego_brick"
+

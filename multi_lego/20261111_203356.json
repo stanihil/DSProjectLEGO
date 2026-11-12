@@ -1,0 +1,100 @@
+{
+  "version": "4.3.1",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "lego_brick",
+      "score": 0.9528715014457703,
+      "points": [
+        [
+          1500.0837768554688,
+          1195.0271865844727
+        ],
+        [
+          1883.9919006347657,
+          1195.0271865844727
+        ],
+        [
+          1883.9919006347657,
+          1581.6814163208007
+        ],
+        [
+          1500.0837768554688,
+          1581.6814163208007
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          1149.90625,
+          1774.5807291666665
+        ],
+        [
+          1321.6022135416665,
+          1774.5807291666665
+        ],
+        [
+          1321.6022135416665,
+          2007.8489583333333
+        ],
+        [
+          1149.90625,
+          2007.8489583333333
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "lego_brick",
+      "score": null,
+      "points": [
+        [
+          1071.423177083333,
+          1023.1647135416666
+        ],
+        [
+          1252.640625,
+          1023.1647135416666
+        ],
+        [
+          1252.640625,
+          1228.8124999999998
+        ],
+        [
+          1071.423177083333,
+          1228.8124999999998
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "20261111_203356.jpg",
+  "imageData": null,
+  "imageHeight": 2992,
+  "imageWidth": 2992
+}
