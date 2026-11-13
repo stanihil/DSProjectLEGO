@@ -4,7 +4,8 @@
   "checked": false,
   "shapes": [
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3005",
       "score": 0.9334675073623657,
       "points": [
         [
@@ -25,7 +26,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -33,7 +34,8 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3623",
       "score": 0.479415625333786,
       "points": [
         [
@@ -54,7 +56,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -63,24 +65,24 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "3022",
       "score": null,
       "points": [
         [
-          1371.0162760416665,
-          913.1549479166666
+          1370.4558140851448,
+          912.5944859601449
         ],
         [
-          1836.3483072916665,
-          913.1549479166666
+          1835.7878453351448,
+          912.5944859601449
         ],
         [
-          1836.3483072916665,
-          1421.2604166666665
+          1835.7878453351448,
+          1420.6999547101448
         ],
         [
-          1371.0162760416665,
-          1421.2604166666665
+          1370.4558140851448,
+          1420.6999547101448
         ]
       ],
       "group_id": null,
@@ -93,7 +95,7 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "4073",
       "score": null,
       "points": [
         [
@@ -123,7 +125,7 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "4073",
       "score": null,
       "points": [
         [
@@ -155,5 +157,6 @@
   "imagePath": "20261111_204543.jpg",
   "imageData": null,
   "imageHeight": 2992,
-  "imageWidth": 2992
+  "imageWidth": 2992,
+  "description": ""
 }

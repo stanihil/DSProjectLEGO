@@ -4,7 +4,8 @@
   "checked": false,
   "shapes": [
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3022",
       "score": 0.8577544689178467,
       "points": [
         [
@@ -25,7 +26,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -33,7 +34,8 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3623",
       "score": 0.6420394778251648,
       "points": [
         [
@@ -54,7 +56,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -62,7 +64,8 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3005",
       "score": 0.5486014485359192,
       "points": [
         [
@@ -83,7 +86,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -92,23 +95,23 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "54200",
       "score": null,
       "points": [
         [
-          1648.278645833333,
+          1647.7181838768113,
           1210.8274739583333
         ],
         [
-          1852.770833333333,
+          1852.2103713768113,
           1210.8274739583333
         ],
         [
-          1852.770833333333,
+          1852.2103713768113,
           1440.7102864583333
         ],
         [
-          1648.278645833333,
+          1647.7181838768113,
           1440.7102864583333
         ]
       ],
@@ -122,23 +125,23 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "4073",
       "score": null,
       "points": [
         [
-          909.8671874999999,
+          910.4106657608695,
           1055.9934895833333
         ],
         [
-          1088.578125,
+          1089.1216032608695,
           1055.9934895833333
         ],
         [
-          1088.578125,
+          1089.1216032608695,
           1234.7532552083333
         ],
         [
-          909.8671874999999,
+          910.4106657608695,
           1234.7532552083333
         ]
       ],
@@ -154,5 +157,6 @@
   "imagePath": "20261111_204536.jpg",
   "imageData": null,
   "imageHeight": 2992,
-  "imageWidth": 2992
+  "imageWidth": 2992,
+  "description": ""
 }
