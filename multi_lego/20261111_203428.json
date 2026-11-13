@@ -4,7 +4,8 @@
   "checked": false,
   "shapes": [
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3002",
       "score": 0.945842444896698,
       "points": [
         [
@@ -25,7 +26,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -33,7 +34,8 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3005",
       "score": 0.8986631631851196,
       "points": [
         [
@@ -54,36 +56,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
-      "difficult": false,
-      "shape_type": "rectangle",
-      "flags": {},
-      "attributes": {},
-      "kie_linking": []
-    },
-    {
-      "label": "lego_brick",
-      "score": 0.8343135118484497,
-      "points": [
-        [
-          1169.4673431396484,
-          1630.3186508178712
-        ],
-        [
-          1834.5385955810548,
-          1630.3186508178712
-        ],
-        [
-          1834.5385955810548,
-          2172.654888916016
-        ],
-        [
-          1169.4673431396484,
-          2172.654888916016
-        ]
-      ],
-      "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -92,7 +65,37 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "2654",
+      "score": 0.8343135118484497,
+      "points": [
+        [
+          1169.4673431396484,
+          1630.8394841512047
+        ],
+        [
+          1834.5385955810548,
+          1630.8394841512047
+        ],
+        [
+          1834.5385955810548,
+          2173.1757222493493
+        ],
+        [
+          1169.4673431396484,
+          2173.1757222493493
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "3062",
       "score": null,
       "points": [
         [
@@ -124,5 +127,6 @@
   "imagePath": "20261111_203428.jpg",
   "imageData": null,
   "imageHeight": 2992,
-  "imageWidth": 2992
+  "imageWidth": 2992,
+  "description": ""
 }

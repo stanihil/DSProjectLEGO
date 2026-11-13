@@ -4,7 +4,8 @@
   "checked": false,
   "shapes": [
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3020",
       "score": 0.9587407112121582,
       "points": [
         [
@@ -25,7 +26,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -33,28 +34,29 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3003",
       "score": 0.9568816423416138,
       "points": [
         [
           294.4215644836426,
-          1199.5431098937988
+          1199.0060005187988
         ],
         [
           765.6343288421631,
-          1199.5431098937988
+          1199.0060005187988
         ],
         [
           765.6343288421631,
-          1619.927304840088
+          1619.390195465088
         ],
         [
           294.4215644836426,
-          1619.927304840088
+          1619.390195465088
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -62,7 +64,8 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3710",
       "score": 0.9531279802322388,
       "points": [
         [
@@ -83,7 +86,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -91,7 +94,8 @@
       "kie_linking": []
     },
     {
-      "label": "lego_brick",
+      "review_status": "pending",
+      "label": "3010",
       "score": 0.9455115795135498,
       "points": [
         [
@@ -112,94 +116,7 @@
         ]
       ],
       "group_id": null,
-      "description": null,
-      "difficult": false,
-      "shape_type": "rectangle",
-      "flags": {},
-      "attributes": {},
-      "kie_linking": []
-    },
-    {
-      "label": "lego_brick",
-      "score": 0.9350463151931763,
-      "points": [
-        [
-          1129.5492233276368,
-          1193.3639434814454
-        ],
-        [
-          1453.332064819336,
-          1193.3639434814454
-        ],
-        [
-          1453.332064819336,
-          1518.2353546142579
-        ],
-        [
-          1129.5492233276368,
-          1518.2353546142579
-        ]
-      ],
-      "group_id": null,
-      "description": null,
-      "difficult": false,
-      "shape_type": "rectangle",
-      "flags": {},
-      "attributes": {},
-      "kie_linking": []
-    },
-    {
-      "label": "lego_brick",
-      "score": 0.9341468811035156,
-      "points": [
-        [
-          1280.0931259155275,
-          501.04278259277345
-        ],
-        [
-          1558.8588333129883,
-          501.04278259277345
-        ],
-        [
-          1558.8588333129883,
-          917.055721282959
-        ],
-        [
-          1280.0931259155275,
-          917.055721282959
-        ]
-      ],
-      "group_id": null,
-      "description": null,
-      "difficult": false,
-      "shape_type": "rectangle",
-      "flags": {},
-      "attributes": {},
-      "kie_linking": []
-    },
-    {
-      "label": "lego_brick",
-      "score": 0.8407028913497925,
-      "points": [
-        [
-          1737.6865715026856,
-          891.5352546691895
-        ],
-        [
-          2131.8492210388185,
-          891.5352546691895
-        ],
-        [
-          2131.8492210388185,
-          1309.0661987304688
-        ],
-        [
-          1737.6865715026856,
-          1309.0661987304688
-        ]
-      ],
-      "group_id": null,
-      "description": null,
+      "description": "",
       "difficult": false,
       "shape_type": "rectangle",
       "flags": {},
@@ -208,7 +125,97 @@
     },
     {
       "review_status": "pending",
-      "label": "lego_brick",
+      "label": "2654",
+      "score": 0.9350463151931763,
+      "points": [
+        [
+          1130.0375045776368,
+          1193.3639434814454
+        ],
+        [
+          1453.820346069336,
+          1193.3639434814454
+        ],
+        [
+          1453.820346069336,
+          1518.2353546142579
+        ],
+        [
+          1130.0375045776368,
+          1518.2353546142579
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "3004",
+      "score": 0.9341468811035156,
+      "points": [
+        [
+          1280.0931259155275,
+          501.53106384277345
+        ],
+        [
+          1558.8588333129883,
+          501.53106384277345
+        ],
+        [
+          1558.8588333129883,
+          917.544002532959
+        ],
+        [
+          1280.0931259155275,
+          917.544002532959
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "3004",
+      "score": 0.8407028913497925,
+      "points": [
+        [
+          1737.6865715026856,
+          890.9981452941895
+        ],
+        [
+          2131.8492210388185,
+          890.9981452941895
+        ],
+        [
+          2131.8492210388185,
+          1308.5290893554688
+        ],
+        [
+          1737.6865715026856,
+          1308.5290893554688
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "2654",
       "score": null,
       "points": [
         [
@@ -240,5 +247,6 @@
   "imagePath": "20261111_203124.jpg",
   "imageData": null,
   "imageHeight": 2992,
-  "imageWidth": 2992
+  "imageWidth": 2992,
+  "description": ""
 }
