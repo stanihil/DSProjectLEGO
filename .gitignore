@@ -13,6 +13,8 @@ runs/
 
 #dataset
 .datasets/
-projectV1/dataset/object_det/all/*
+projectV1/dataset/object_det/*
+projectV1/dataset/generic/*
+projectV1/dataset/classification/*
 
 projectV1/rebrickable_apikey.txt
