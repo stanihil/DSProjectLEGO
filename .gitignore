@@ -13,4 +13,4 @@ runs/
 
 #dataset
 .datasets/
-
+projectV1/dataset/object_det/all/*
