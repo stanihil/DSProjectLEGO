@@ -38,7 +38,7 @@ def font(size: int = 18):
 def main() -> int:
     ap = argparse.ArgumentParser(description="Klassifikator testen.")
     ap.add_argument("--weights", type=Path,
-                    default=HERE / "runs/yolo26m_cls_70_20_10/weights/best.pt")
+                    default=HERE / "runs/yolo26m_cls_legosteine/weights/best.pt")
     ap.add_argument("--data", type=Path, default=HERE / "data")
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
     ap.add_argument("--source", type=Path, default=None,
@@ -52,7 +52,9 @@ def main() -> int:
 
     if args.source is None:
         metrics = model.val(data=str(args.data.resolve()), split=args.split,
-                            imgsz=args.imgsz, device=args.device)
+                            imgsz=args.imgsz, device=args.device,
+                            project=str(HERE / "runs"), name=f"eval_{args.split}",
+                            exist_ok=True)
         print(f"Split {args.split}: Top-1 {metrics.top1:.3f}  Top-5 {metrics.top5:.3f}")
         return 0
 

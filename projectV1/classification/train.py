@@ -8,7 +8,7 @@ und Laeufe liegen alle in ``projectV1/classification/``.
 Beispiel:
 
     python projectV1/classification/train.py
-    python projectV1/classification/train.py --epochs 30 --model yolo26m-cls.pt
+    python projectV1/classification/train.py --epochs 60 --model yolo26m-cls.pt
 """
 
 from __future__ import annotations
@@ -28,13 +28,13 @@ def main() -> int:
                     help="Basismodell (Pfad oder Ultralytics-Name)")
     ap.add_argument("--data", type=Path, default=HERE / "data",
                     help="Ordner mit train/ val/ test/ (keine YAML)")
-    ap.add_argument("--epochs", type=int, default=30)
+    ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--imgsz", type=int, default=224)
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--device", default="mps")
-    ap.add_argument("--patience", type=int, default=10,
+    ap.add_argument("--patience", type=int, default=20,
                     help="Early Stopping (0 = aus)")
-    ap.add_argument("--name", default="yolo26m_cls_70_20_10")
+    ap.add_argument("--name", default="yolo26m_cls_legosteine")
     ap.add_argument("--project", type=Path, default=HERE / "runs")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--lr0", type=float, default=1e-3)

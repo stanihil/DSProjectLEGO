@@ -4,9 +4,11 @@ Ziel: ein Klassifikator, der **einzelne LEGO-Teile** auf Teilenummern abbildet
 (z. B. `3001`, `3069b`, `4073`). Der Detektor findet die Boxen auf einem
 Handyfoto, der Klassifikator sagt pro Box, welches Teil es ist.
 
-Aktuell gibt es **einen** sauberen Trainingslauf: `cls_yolo26m_clean`
-(`yolo26m-cls.pt`, 448 Klassen). Alle alten Datensätze, Runs und Experimente
-wurden entfernt.
+Aktuell gibt es **einen** Klassifikations-Lauf:
+`projectV1/classification/` mit den **19 Klassen aus `Legosteine_comp`**
+(`yolo26m-cls.pt`). Der frühere 448-Klassen-Lauf (`cls_yolo26m_clean`) und
+sein Datensatz `cls_clean` wurden auf Wunsch gelöscht; die Ergebnisse in
+diesem README sind historisch und beschreiben die damalige Pipeline.
 
 ## Ordnerstruktur
 

@@ -1,36 +1,37 @@
-# Klassifikation – eigenständiger Trainingsordner
+# Klassifikation – 19 Klassen aus `Legosteine_comp`
 
-Gegenstück zu `projectV1/backend/object_detection/`: ein Ordner, in dem
-Datensatz, Klassenliste, Trainingsskript, Testskript und Läufe zusammen
-liegen. Das Training selbst ist genauso aufgebaut wie beim Detektor:
+Eigenständiger Trainingsordner, aufgebaut wie
+`projectV1/backend/object_detection/`: Datensatz, Skripte und Läufe liegen
+zusammen. Trainiert wird ausschließlich auf den Klassen, die in
+`Legosteine_comp/` liegen.
 
 ```python
 model = YOLO("yolo26m-cls.pt")
-model.train(data=".../classification/data", epochs=30, device="mps", ...)
+model.train(data=".../classification/data", epochs=100, device="mps", ...)
 ```
-
-Der bestehende Lauf `projectV1/runs/cls_yolo26m_clean` bleibt unangetastet.
 
 ## Aufbau
 
 ```
 projectV1/classification/
-├── build_dataset.py     # baut data/ (70/20/10, gruppenbewusster Split)
+├── build_dataset.py     # baut data/ aus Legosteine_comp (70/20/10)
 ├── train.py             # ein model.train(...)
 ├── test.py              # Split auswerten oder Bilder klassifizieren
 ├── data/
 │   ├── train/<teilenummer>/*.jpg
 │   ├── val/<teilenummer>/*.jpg
 │   ├── test/<teilenummer>/*.jpg
-│   ├── classes.txt      # 448 Klassen, alphabetisch
-│   ├── manifest.csv     # welche Quelle in welchem Split
+│   ├── classes.txt      # 19 Klassen, alphabetisch
+│   ├── manifest.csv     # Quelle + crop/full je Bild
 │   ├── dataset_stats.json
 │   └── data.yaml        # Doku/Klassenliste (Ultralytics will den Ordner)
 └── runs/
-    └── yolo26m_cls_70_20_10/
-        ├── weights/best.pt
-        ├── results.csv / results.png
-        └── confusion_matrix*.png
+    ├── yolo26m_cls_legosteine/
+    │   ├── weights/best.pt
+    │   ├── results.csv / results.png
+    │   └── confusion_matrix*.png
+    ├── eval_val/           # test.py --split val
+    └── eval_test/          # test.py --split test
 ```
 
 ## 1. Datensatz bauen
@@ -39,25 +40,21 @@ projectV1/classification/
 python projectV1/classification/build_dataset.py --force
 ```
 
-Quellen:
+- Quelle: `Legosteine_comp/<teilenummer>/`
+- **19 Klassen:** 2654, 3002, 3003, 3004, 3005, 3009, 3010, 3020, 3021,
+  3022, 3023, 3062, 3622, 3623, 3666, 3710, 4073, 54200, 6215
+- Jedes Bild mit `.txt` wird an der YOLO-Box zugeschnitten (6 % Rand), also
+  so, wie der Detektor später die Box liefert.
+- Bilder **ohne** Box (10 Stück, darunter alle 5 von `4073`) werden als
+  Ganzbild verwendet und im `manifest.csv` als `kind=full` markiert.
+- Aufteilung **70/20/10** pro Klasse; `train` wird 3× oversampelt.
 
-| Quelle | Verwendung |
-|---|---|
-| `.datasets/05 - dataset/photos` | 447 Studio-Klassen, max. 40 Bilder/Klasse, max. 3 pro Ansicht `c<farbe>_<ansicht>`, Mindestkante 160 px |
-| `projectV1/dataset/generic` | echte Handyfoto-Crops (X-AnyLabeling-JSON), nur `train` |
-| `Legosteine_comp` | echte Handyfoto-Crops (YOLO-txt), nur `train`, 2× oversampelt |
-| `multi_lego_yolo` | **ausgeschlossen** (Testset) |
+Ergebnis: 104 eindeutige Bilder → 65 train (×3 = 195), 20 val, 19 test.
 
-Aufteilung **70/20/10** wie beim Detection-`autosplit`, aber
-**gruppenbewusst**: alle Aufnahmen derselben Gruppe
-(`c<farbe>_<ansicht>_<quelle>`, z. B. `c0_1_Con31`) landen im selben Split.
-Sonst wäre die Validierung durch Near-Duplicates geschönt. Reichen die
-Gruppen nicht für drei Splits (kleine Klassen), wird aufgefüllt, damit die
-Klasse trotzdem in `train`, `val` und `test` vorkommt.
-Klasse `4073` fehlt im Studio-Datensatz und kommt nur aus echten Crops.
-
-Erwartetes Ergebnis: 448 Klassen, ca. **11.4k / 3.1k / 1.7k** Bilder
-(70,4 % / 19,1 % / 10,5 %).
+> Die Validierung ist mit 19–20 Bildern sehr klein; jede Klasse ist dort
+> mit genau einem Bild vertreten. Top-1 springt dadurch in 5-%-Schritten.
+> Das ist bei 104 Bildern nicht anders möglich und wird hier nicht schön
+> gerechnet.
 
 ## 2. Training
 
@@ -68,52 +65,72 @@ python projectV1/classification/train.py
 | Einstellung | Wert |
 |---|---|
 | Basismodell | `yolo26m-cls.pt` (offizielle Gewichte) |
-| Epochen | 30, Early Stopping `patience=10` |
+| Epochen | 100, Early Stopping `patience=20` |
 | Bildgröße / Batch | 224 px / 32 |
 | Optimizer | AdamW, `lr0=1e-3`, Cosine |
 | Device | `mps` (Apple M1) |
 | Spiegelung | `fliplr=0`, `flipud=0` |
 
 **Warum keine Spiegelung:** LEGO hat chirale Teilepaare – ein gespiegelter
-Stein ist ein anderes Teil. Das war schon beim sauberen Lauf so und bleibt
-hier bewusst erhalten.
-
-Der Lauf schreibt nach `runs/yolo26m_cls_70_20_10/`. Auf dem M1 ist mit
-mehreren Stunden zu rechnen; die Epochen 1–5 liefen im Vergleichslauf mit
-7–15 min, danach kann das Gerät thermisch drosseln.
+Stein ist ein anderes Teil.
 
 ## 3. Test
 
 ```bash
-# Top-1/Top-5 auf einem Split
+# Top-1/Top-5 auf einem Split (schreibt nach runs/eval_<split>/)
 python projectV1/classification/test.py --split test
 
-# Einzelbild oder ganzer Ordner, beschriftete Kopien + CSV
+# Einzelbild oder Ordner, beschriftete Kopien + CSV
 python projectV1/classification/test.py --source Legosteine_comp/3002
 python projectV1/classification/test.py --source multi_lego_yolo
 ```
 
-Ausgabe der Bild-Variante: `runs/predict/` mit beschrifteten JPGs und
+Bild-Variante: `runs/predict/` mit beschrifteten JPGs und
 `predictions.csv` (Top-1, Konfidenz, Top-5).
 
 ## Ergebnis
 
-Wird nach dem Lauf hier ergänzt (Top-1/Top-5 auf `val` und `test` sowie
-Dauer). Vergleichbar ist der bestehende Lauf:
+Lauf: `runs/yolo26m_cls_legosteine/weights/best.pt`
 
-| Lauf | Split | Modell | Top-1 | Top-5 |
-|---|---|---|---|---|
-| `cls_yolo26m_clean` | 80/10/10 | yolo26m-cls, 10 Ep. | 84,6 % | 95,7 % |
-| `yolo26m_cls_70_20_10` | 70/20/10 | yolo26m-cls, 30 Ep. | – | – |
+| Split | Bilder | Top-1 | Top-5 |
+|---|---|---|---|
+| `val` | 20 | **0,750** | 0,850 |
+| `test` | 19 | **0,737** (14/19) | 0,947 (18/19) |
 
-## Unterschiede zum bestehenden Lauf
+- Training: 24 Epochen, dann Early Stop (`patience=20`), **4,3 min** auf MPS.
+- `best.pt` ist der Stand aus Epoche 9 (`top1=0,75`, `top5=0,85`).
+- Die 5 Fehler im Test stammen alle aus verwechselbaren Formen:
 
-| | `cls_yolo26m_clean` | dieser Ordner |
+| echt | vorhergesagt | Konfidenz |
 |---|---|---|
-| Split | 80/10/10 | **70/20/10** |
-| Code | viele Skripte in `backend/` | **3 Skripte, alles in einem Ordner** |
-| Epochen | 10 | 30 + Early Stop |
-| Ausgabe | `projectV1/runs/` | `projectV1/classification/runs/` |
+| 2654 | 3020 | 0,66 |
+| 3010 | 3002 | 0,71 |
+| 3021 | 3623 | 0,46 |
+| 3622 | 3666 | 0,59 |
+| 6215 | 3022 | 0,97 |
 
-Der alte Lauf bleibt als Referenz erhalten; dieser Ordner ist der neue,
-in sich geschlossene Trainingsweg.
+Richtig erkannt wurde meist mit hoher Konfidenz (Median 1,00, Minimum 0,36
+bei `3020`). Details: `runs/eval_test/confusion_matrix*.png`,
+`runs/eval_val/`.
+
+### Was die Zahlen nicht sagen
+
+- **Ein Bild pro Klasse** in `val` (20) und `test` (19). Ein Fehler sind
+  sofort 5,3 Prozentpunkte; die Zahlen sind eine Stichprobe, keine
+  belastbare Genauigkeit.
+- `4073` hat in `Legosteine_comp` **keine Boxen** – alle 5 Bilder sind
+  Ganzbilder (`kind=full`), das Testbild ist also genauso aufgenommen wie
+  das Training. Die 1,00 dort ist erwartbar und kein Beleg für Robustheit.
+- Getestet ist nur die Domäne `Legosteine_comp` (Freisteller, oft
+  zugeschnitten). Auf den Handyfotos in `multi_lego_yolo` ist das Modell
+  **nicht** geprüft.
+- Kein Foto liegt in zwei Splits: die 104 Quellbilder sind sauber auf
+  65/20/19 verteilt, es gibt keine Überlappung zwischen Training und
+  Validierung/Test.
+
+## Hinweis zum alten 448-Klassen-Lauf
+
+Der frühere Datensatz `projectV1/dataset/cls_clean`, der Run
+`projectV1/runs/cls_yolo26m_clean` und die 70/20/10-Zwischenversion wurden
+auf Wunsch gelöscht. Es gibt jetzt genau einen Klassifikations-Datensatz
+und einen Lauf: diesen hier.
