@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-16T14:35:05+00:00",
+  "updated_at": "2026-11-16T14:56:27+00:00",
   "artifacts": [
     {
       "file": "cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt",
@@ -44,6 +44,51 @@
       "run_dir": "projectV1/classification/runs/cls_s_seed2",
       "git_commit": "9f481ac",
       "published_at": "2026-11-16T14:35:05+00:00"
+    },
+    {
+      "file": "cls_legosteine-20_yolo26s-cls_224_2026-11-16.pt",
+      "sha256": "116ed94a961bc5332555d0a60553ece5cce213917f234cf608a132dc2ba9cf04",
+      "task": "cls",
+      "dataset": "legosteine-20",
+      "class_count": 20,
+      "classes": [
+        "2654",
+        "3001",
+        "3002",
+        "3003",
+        "3004",
+        "3005",
+        "3009",
+        "3010",
+        "3020",
+        "3021",
+        "3022",
+        "3023",
+        "3062",
+        "3622",
+        "3623",
+        "3666",
+        "3710",
+        "4073",
+        "54200",
+        "6215"
+      ],
+      "arch": "yolo26s-cls",
+      "base_weights": "cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt",
+      "base_weights_sha256": "6287f4dfbc4819ca830cb372db457c554b2e3a0c9790a084c4fd31edeb647925",
+      "imgsz": 224,
+      "epochs": 60,
+      "seed": 0,
+      "metrics": {
+        "best_epoch": 12,
+        "epochs_run": 27,
+        "train_minutes": 4.5,
+        "top1": 0.7153,
+        "top5": 0.9375
+      },
+      "run_dir": "projectV1/classification/runs/cls_legosteine_s_merged",
+      "git_commit": "f7064e7",
+      "published_at": "2026-11-16T14:56:27+00:00"
     }
   ]
 }

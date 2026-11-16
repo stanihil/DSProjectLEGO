@@ -158,7 +158,8 @@ def artifact_name(task: str, dataset: str, arch: str, imgsz: int, day: str,
     return name
 
 
-def publish(run: Path, dataset: str | None = None, dry_run: bool = False) -> dict:
+def publish(run: Path, dataset: str | None = None, dry_run: bool = False,
+            arch: str | None = None) -> dict:
     """Kopiert ``best.pt`` als sprechend benanntes Artefakt nach models/."""
     run = run.resolve()
     weights = run / "weights" / "best.pt"
@@ -171,7 +172,7 @@ def publish(run: Path, dataset: str | None = None, dry_run: bool = False) -> dic
         task = "cls"
     task = TASK_SLUG.get(task, task)
 
-    arch = Path(args.get("model", "unknown")).stem or "unknown"
+    arch = arch or Path(args.get("model", "unknown")).stem or "unknown"
     imgsz = int(float(args.get("imgsz", 0) or 0))
     dataset = dataset or run.name
     day = datetime.fromtimestamp(weights.stat().st_mtime).strftime("%Y-%m-%d")

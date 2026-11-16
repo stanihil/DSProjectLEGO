@@ -42,6 +42,10 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--dataset", default="legosteine-19",
                     help="Kurzname fuer den Dateinamen des Modells")
+    ap.add_argument("--arch", default=None,
+                    help="Architektur fuer den Dateinamen; noetig beim Warm Start "
+                         "von einem veroeffentlichten Modell (sonst wird dessen "
+                         "kompletter Dateiname eingesetzt)")
     ap.add_argument("--no-publish", dest="publish", action="store_false",
                     help="nicht nach projectV1/models/ kopieren")
     args = ap.parse_args()
@@ -81,7 +85,8 @@ def main() -> int:
         sys.path.insert(0, str(HERE.parent / "models"))
         from publish import publish
 
-        publish(args.project.resolve() / args.name, dataset=args.dataset)
+        publish(args.project.resolve() / args.name, dataset=args.dataset,
+                arch=args.arch)
     return 0
 
 
