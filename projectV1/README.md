@@ -188,6 +188,24 @@ python projectV1/backend/inference/classify_boxes.py \
 Ausgabe: `predictions.csv`, `summary.csv`, `annotated/*.jpg`, `sheet.jpg`,
 `truth_eval.json/csv`.
 
+## 5. Zufallsstichprobe pro Klassenordner
+
+`test_random_samples.py` zieht pro Unterordner eine feste Zufallsstichprobe
+(Seed) und klassifiziert sie:
+
+```bash
+python projectV1/backend/eval/test_random_samples.py \
+    --images Legosteine_comp \
+    --weights projectV1/runs/cls_yolo26m_clean/weights/best.pt \
+    --per-class 1 --seed 42 --crop-from-txt \
+    --out projectV1/runs/cls_yolo26m_clean/samples_legosteine_comp_crop
+```
+
+`--crop-from-txt` schneidet das Teil mit der vorhandenen YOLO-Box
+(6 % Rand, wie `build_fast_cls.py`). **Das ist Pflicht:** der Klassifikator
+wurde auf engen Crops trainiert; ein 168×224-Ganzbild mit kleinem Teil
+liefert nur 3/19 Treffer, mit Box 16/19.
+
 ## Aktueller Stand: `cls_yolo26m_clean`
 
 Lauf: `yolo26m-cls.pt`, 448 Klassen, 10 Epochen, 224 px, Batch 32,
@@ -278,6 +296,37 @@ Die Trainingsdauer ist auf dem 8-GB-M1 stark thermisch limitiert; die Epochen
 
 Alle haben ≤ 9 Trainingsbilder – die globale Top-1 von 84,6 % leidet an diesen
 zwanzig Mini-Klassen, die mittlere Klassen-Top-1 liegt bei 85,8 %.
+
+### Zufallsstichprobe `Legosteine_comp` (19 Klassen, Seed 42)
+
+Ein zufälliges Bild pro Unterordner, einmal als Ganzbild und einmal als Crop
+mit der vorhandenen `.txt`-Box:
+
+| Eingabe | Treffer | Top-1 | Top-5 |
+|---|---|---|---|
+| 168×224-Ganzbild (ohne Crop) | 3/19 | 15,8 % | 36,8 % |
+| Crop aus der `.txt`-Box | 16/19 | **84,2 %** | 84,2 % |
+| Crop, nur Bilder **mit** Box | 16/16 | **100 %** | 100 % |
+
+Die drei Fehlschläge sind **exakt** die drei Bilder ohne `.txt`
+(`3009/IMG_3148`, `3622/IMG_3169`, `4073/*` – `4073` hat gar keine Boxen).
+Sie werden als Ganzbild gezeigt und scheitern an der fehlenden Box,
+nicht an der Klasse.
+
+Über alle 94 zufällig gezogenen Bilder (`--per-class 5 --seed 7`):
+
+| Eingabe | n | Top-1 | Top-5 |
+|---|---|---|---|
+| mit Crop | 84 | **98,8 %** | 100 % |
+| ohne Box (Ganzbild) | 10 | 0 % | 20 % |
+
+**Wichtig:** Diese Bilder stecken im Trainingsdatensatz (`comp_*_0_0.jpg`),
+messen also kein Generalisieren – sie bestätigen nur, dass Labels, Klassen-
+Reihenfolge und Vorverarbeitung stimmen. Die echten Generalisierungszahlen
+sind der Test-Split (84,6 %) und die Handyfotos (44,7 %).
+
+**Lehre für die Pipeline:** Der Klassifikator braucht immer einen engen Crop
+(Detektor-Box). Ein ganzes Foto mit kleinem Teil im Bild funktioniert nicht.
 
 ## Design-Entscheidungen
 
