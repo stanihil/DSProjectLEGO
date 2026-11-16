@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+"""Recommend a Rebrickable set buildable from a user's available bricks."""
+
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+
+API_KEY_FILE = Path(__file__).resolve().parents[2] / "projectV1" / "rebrickable_apikey.txt"
+API_BASE = "https://rebrickable.com/api/v3"
+
+
+def log_progress(message):
+	"""Print a progress message immediately without mixing it into JSON output."""
+	print(f"[recommender] {message}", file=sys.stderr, flush=True)
+
+
+def read_api_key():
+	"""Read the API key at runtime without storing it in this script."""
+	log_progress(f"Loading API key from {API_KEY_FILE}")
+	key = API_KEY_FILE.read_text(encoding="utf-8").strip()
+	if not key:
+		raise RuntimeError(f"API key file is empty: {API_KEY_FILE}")
+	log_progress("API key loaded")
+	return key
+
+
+def api_get(path, api_key, **params):
+	query = urlencode(params)
+	url = f"{API_BASE}{path}" + (f"?{query}" if query else "")
+	request = Request(url, headers={"Authorization": f"key {api_key}"})
+	log_progress(f"Requesting {path}")
+	try:
+		with urlopen(request, timeout=30) as response:
+			data = json.load(response)
+			log_progress(f"Received response from {path}")
+			return data
+	except (HTTPError, URLError) as exc:
+		raise RuntimeError(f"Rebrickable API request failed: {exc}") from exc
+
+
+def get_set_parts(set_number, api_key):
+	"""Return all parts in a set, following Rebrickable pagination."""
+	parts = []
+	url_path = f"/lego/sets/{set_number}/parts/"
+	page = 1
+	while True:
+		log_progress(f"Loading parts for set {set_number} (page {page})")
+		data = api_get(url_path, api_key, page_size=1000, page=page)
+		parts.extend(data.get("results", []))
+		if not data.get("next"):
+			log_progress(f"Loaded {len(parts)} parts for set {set_number}")
+			return parts
+		page += 1
+
+
+def can_build(bricks, required_parts):
+	"""Check part/color quantities; a missing color means any color."""
+	exact = Counter((b["part_num"], b.get("color_id")) for b in bricks)
+	any_color = Counter(b["part_num"] for b in bricks if b.get("color_id") is None)
+
+	for required in required_parts:
+		if required.get("is_spare"):
+			continue
+		part = required["part"]["part_num"]
+		color = required["color"]["id"]
+		amount = required["quantity"]
+		exact_available = exact[(part, color)]
+		if exact_available >= amount:
+			exact[(part, color)] -= amount
+		elif exact_available + any_color[part] >= amount:
+			any_color[part] -= amount - exact_available
+			exact[(part, color)] = 0
+		else:
+			return False
+	return True
+
+
+def recommend_set(bricks, max_candidates=25):
+	api_key = read_api_key()
+	available_parts = len(bricks)
+	if not available_parts:
+		log_progress("No bricks available; skipping set search")
+		return None
+
+	log_progress(
+		f"Loading up to {max_candidates} sets with at most "
+		f"{available_parts} parts"
+	)
+	candidates = api_get(
+		"/lego/sets/",
+		api_key,
+		page_size=max_candidates,
+		max_parts=available_parts,
+		ordering="-num_parts",
+	).get("results", [])
+	log_progress(f"Received {len(candidates)} candidate sets")
+
+	for index, candidate in enumerate(candidates, start=1):
+		set_number = candidate["set_num"]
+		log_progress(
+			f"Checking candidate {index}/{len(candidates)}: "
+			f"{set_number} - {candidate['name']}"
+		)
+		if can_build(bricks, get_set_parts(set_number, api_key)):
+			set_number = candidate["set_num"]
+			log_progress(f"Found buildable set {set_number}")
+			return {
+				"set_num": set_number,
+				"name": candidate["name"],
+				"num_parts": candidate.get("num_parts"),
+				"url": f"https://rebrickable.com/sets/{set_number}/1/",
+			}
+		log_progress(f"Set {set_number} cannot be built from the available bricks")
+	log_progress("No buildable set found")
+	return None
+
+
+if __name__ == "__main__":
+	# Input: mockup array of bricks owned by the user.
+	bricks = [
+		{"part_num": "3001", "color_id": 21},  # red 2 x 4 brick
+		{"part_num": "3003", "color_id": 21},  # red 2 x 2 brick
+		{"part_num": "3010", "color_id": 21},  # red 1 x 4 brick
+	]
+
+	try:
+		log_progress(f"Starting recommendation for {len(bricks)} available bricks")
+		result = recommend_set(bricks)
+		print(json.dumps({"result": result}, indent=2))
+	except (OSError, RuntimeError) as exc:
+		print(json.dumps({"error": str(exc)}, indent=2))

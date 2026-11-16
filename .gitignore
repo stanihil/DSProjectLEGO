@@ -13,14 +13,12 @@ runs/
 
 #dataset
 .datasets/
-projectV1/dataset/object_det/all/*
-projectV1/dataset/classification/train/*/
-projectV1/dataset/classification/val/*/
-projectV1/dataset/classification/test/*/
-projectV1/dataset/classification/*.cache
-projectV1/dataset/classification/manifest.csv
+projectV1/dataset/object_det/*
+projectV1/dataset/generic/*
+projectV1/dataset/classification/*
 projectV1/dataset/classification_smoke/
 projectV1/dataset/cls_fast/
 projectV1/dataset/cls_clean/
+multi_lego_yolo/
 
 projectV1/rebrickable_apikey.txt
