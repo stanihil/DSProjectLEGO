@@ -205,6 +205,7 @@ def publish(run: Path, dataset: str | None = None, dry_run: bool = False) -> dic
         "base_weights_sha256": sha256(base_path) if base_path.is_file() else None,
         "imgsz": imgsz,
         "epochs": int(float(args.get("epochs", 0) or 0)),
+        "seed": int(float(args.get("seed", 0) or 0)),
         "metrics": read_metrics(run, task),
         "run_dir": str(run.relative_to(REPO)) if run.is_relative_to(REPO) else str(run),
         "git_commit": git_commit(),

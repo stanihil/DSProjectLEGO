@@ -6,7 +6,7 @@ zusammen. Trainiert wird ausschließlich auf den Klassen, die in
 `Legosteine_comp/` liegen.
 
 ```python
-model = YOLO("yolo26m-cls.pt")
+model = YOLO("yolo26s-cls.pt")
 model.train(data=".../classification/data", epochs=100, device="mps", ...)
 ```
 
@@ -26,7 +26,7 @@ projectV1/classification/
 │   ├── dataset_stats.json
 │   └── data.yaml        # Doku/Klassenliste (Ultralytics will den Ordner)
 └── runs/
-    ├── yolo26m_cls_legosteine/
+    ├── cls_s_seed2/        # veröffentlichter Lauf
     │   ├── weights/best.pt
     │   ├── results.csv / results.png
     │   └── confusion_matrix*.png
@@ -38,8 +38,8 @@ Das ausgelieferte Modell liegt nicht in `runs/`, sondern mit sprechendem
 Namen in `projectV1/models/`:
 
 ```
-cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt
-cls_legosteine-19_yolo26m-cls_224_2026-11-16.json
+cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt
+cls_legosteine-19_yolo26s-cls_224_2026-11-16.json
 ```
 
 Schema, Manifest und `publish.py` stehen in `projectV1/models/README.md`.
@@ -76,7 +76,7 @@ python projectV1/classification/train.py
 
 | Einstellung | Wert |
 |---|---|
-| Basismodell | `yolo26m-cls.pt` (offizielle Gewichte) |
+| Basismodell | `yolo26s-cls.pt` (offizielle Gewichte, frisch geladen) |
 | Epochen | 100, Early Stopping `patience=20` |
 | Bildgröße / Batch | 224 px / 32 |
 | Optimizer | AdamW, `lr0=1e-3`, Cosine |
@@ -105,44 +105,45 @@ Bild-Variante: `runs/predict/` mit beschrifteten JPGs und
 
 ## Ergebnis
 
-Modell: `projectV1/models/cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt`
-(Kopie von `runs/yolo26m_cls_legosteine/weights/best.pt`, SHA-256 im Sidecar)
+Modell: `projectV1/models/cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt`
+(Kopie von `runs/cls_s_seed2/weights/best.pt`, SHA-256 und Seed im Sidecar)
 
 | Split | Bilder | Top-1 | Top-5 |
 |---|---|---|---|
-| `val` | 20 | **0,750** | 0,850 |
-| `test` | 19 | **0,737** (14/19) | 0,947 (18/19) |
+| `val` | 20 | **0,700** | **1,000** |
+| `test` | 19 | **0,895** (17/19) | **1,000** |
 
-- Training: 24 Epochen, dann Early Stop (`patience=20`), **4,3 min** auf MPS.
-- `best.pt` ist der Stand aus Epoche 9 (`top1=0,75`, `top5=0,85`).
-- Die 5 Fehler im Test stammen alle aus verwechselbaren Formen:
+- Training: 28 Epochen, Early Stop (`patience=20`), 1,8 min auf MPS.
+- Veröffentlicht ist Seed 2. Auswahl über `val`: Top-1 war bei allen
+  `26s`-Seeds 0,700, Tiebreak über Top-5 (Seed 2: 1,000).
 
-| echt | vorhergesagt | Konfidenz |
-|---|---|---|
-| 2654 | 3020 | 0,66 |
-| 3010 | 3002 | 0,71 |
-| 3021 | 3623 | 0,46 |
-| 3622 | 3666 | 0,59 |
-| 6215 | 3022 | 0,97 |
+### `26s` oder `26m`?
 
-Richtig erkannt wurde meist mit hoher Konfidenz (Median 1,00, Minimum 0,36
-bei `3020`). Details: `runs/eval_test/confusion_matrix*.png`,
-`runs/eval_val/`.
+Beide mit identischen Einstellungen, je 3 Seeds:
+
+| Modell | val Top-1 | test Top-1 | test Top-5 | Params | Größe | GFLOPs |
+|---|---|---|---|---|---|---|
+| **26s** | 0,700 / 0,700 / 0,700 | 0,737 / 0,737 / 0,895 | 0,947 / 1,000 / 1,000 | 5,5 M | 11 MB | 12 |
+| 26m | 0,750 / 0,700 / 0,700 | 0,737 / 0,684 / 0,789 | 0,947 / 0,895 / 0,895 | 10,4 M | 21 MB | 39 |
+
+`26m` gewinnt nur ein einziges val-Bild (0,750 vs 0,700) und liegt im Test
+im Schnitt darunter. Bei 19–20 Prüfbildern ist das Rauschen, kein Vorsprung –
+deshalb `26s`: halbe Größe, ein Drittel der Rechenzeit. Die anderen fünf
+Läufe sind gelöscht; reproduzierbar mit `--model`/`--seed`.
 
 ### Was die Zahlen nicht sagen
 
 - **Ein Bild pro Klasse** in `val` (20) und `test` (19). Ein Fehler sind
-  sofort 5,3 Prozentpunkte; die Zahlen sind eine Stichprobe, keine
-  belastbare Genauigkeit.
+  sofort 5,3 Prozentpunkte. Das ist eine Stichprobe, keine belastbare
+  Genauigkeit.
 - `4073` hat in `Legosteine_comp` **keine Boxen** – alle 5 Bilder sind
-  Ganzbilder (`kind=full`), das Testbild ist also genauso aufgenommen wie
-  das Training. Die 1,00 dort ist erwartbar und kein Beleg für Robustheit.
-- Getestet ist nur die Domäne `Legosteine_comp` (Freisteller, oft
-  zugeschnitten). Auf den Handyfotos in `multi_lego_yolo` ist das Modell
-  **nicht** geprüft.
-- Kein Foto liegt in zwei Splits: die 104 Quellbilder sind sauber auf
-  65/20/19 verteilt, es gibt keine Überlappung zwischen Training und
-  Validierung/Test.
+  Ganzbilder (`kind=full`). Die 1,00 dort sagt nichts über Crops oder
+  Handyfotos.
+- Getestet ist nur `Legosteine_comp` (Freisteller, oft zugeschnitten). Auf
+  den Handyfotos in `multi_lego_yolo` ist das Modell **nicht** geprüft.
+- Kein Foto liegt in zwei Splits (104 Quellbilder → 65/20/19).
+- Die Testzahlen sind mit 19 Bildern so klein, dass ich das Modell über
+  `val` ausgewählt habe; der Test dient nur der Kontrolle.
 
 ## Hinweis zum alten 448-Klassen-Lauf
 

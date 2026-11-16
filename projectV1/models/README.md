@@ -11,8 +11,8 @@ Namen, dazu eine JSON-Datei mit der Herkunft und ein gemeinsames Manifest.
 projectV1/models/
 ├── publish.py                                        # Lauf -> benanntes Modell
 ├── manifest.json                                     # alle Modelle + Metriken
-├── cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt
-└── cls_legosteine-19_yolo26m-cls_224_2026-11-16.json
+├── cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt
+└── cls_legosteine-19_yolo26s-cls_224_2026-11-16.json
 ```
 
 ## Namensschema
@@ -25,7 +25,7 @@ projectV1/models/
 |---|---|---|
 | task | `cls` | `cls`, `det`, `seg`, `obb` |
 | datensatz | `legosteine-19` | Kurzname + Klassenzahl |
-| architektur | `yolo26m-cls` | Basisgewichte ohne `.pt` |
+| architektur | `yolo26s-cls` | Basisgewichte ohne `.pt` |
 | imgsz | `224` | Trainingsauflösung |
 | datum | `2026-11-16` | Tag, an dem `best.pt` geschrieben wurde |
 
@@ -72,8 +72,8 @@ geladen und dann wiederverwendet – nicht pro Lauf neu:
 
 | Datei | SHA-256 | Rolle |
 |---|---|---|
-| `yolo26m-cls.pt` | `9f6546f3…` | ImageNet-Basis für alle Klassifikationsläufe |
-| `yolo26s-cls.pt` | `81679002…` | kleinere Alternative, bisher ungenutzt |
+| `yolo26s-cls.pt` | `81679002…` | ImageNet-Basis des ausgelieferten Modells |
+| `yolo26m-cls.pt` | `9f6546f3…` | größere Alternative, im Vergleich unterlegen |
 
 Ultralytics lädt nur nach, wenn die Datei fehlt. Jeder Lauf ersetzt lediglich
 den Klassifikationskopf (`nc=1000` → `nc=19`), die Rumpfgewichte kommen aus

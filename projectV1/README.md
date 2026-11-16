@@ -6,8 +6,8 @@ Handyfoto, der Klassifikator sagt pro Box, welches Teil es ist.
 
 Aktuell gibt es **einen** Klassifikations-Lauf:
 `projectV1/classification/` mit den **19 Klassen aus `Legosteine_comp`**
-(`yolo26m-cls.pt`), ausgeliefert als
-`projectV1/models/cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt`.
+(`yolo26s-cls.pt`), ausgeliefert als
+`projectV1/models/cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt`.
 Aktuelle Doku: `projectV1/classification/README.md` und
 `projectV1/models/README.md`.
 
@@ -32,7 +32,7 @@ DSProjectLEGO/
 │   │   ├── data/                    GENERIERT: 195/20/19 Bilder, 19 Klassen
 │   │   └── runs/                    GENERIERT: Lauf + eval_val/eval_test
 │   ├── models/                      ★ benannte Modelle mit Herkunft
-│   │   ├── publish.py               Lauf -> cls_legosteine-19_yolo26m-cls_224_<datum>.pt
+│   │   ├── publish.py               Lauf -> cls_legosteine-19_yolo26s-cls_224_<datum>.pt
 │   │   ├── manifest.json            alle Modelle, Metriken, Hashes
 │   │   └── cls_*.pt + cls_*.json    Artefakt + Sidecar (siehe models/README.md)
 │   ├── backend/

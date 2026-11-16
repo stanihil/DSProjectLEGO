@@ -49,8 +49,7 @@ def resolve_weights(weights: Path) -> Path:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Klassifikator testen.")
-    ap.add_argument("--weights", type=Path,
-                    default=HERE / "runs/yolo26m_cls_legosteine/weights/best.pt",
+    ap.add_argument("--weights", type=Path, default=Path("latest"),
                     help="Pfad oder 'latest' (zuletzt veröffentlichtes Modell)")
     ap.add_argument("--data", type=Path, default=HERE / "data")
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
