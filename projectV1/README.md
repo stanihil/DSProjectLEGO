@@ -6,9 +6,14 @@ Handyfoto, der Klassifikator sagt pro Box, welches Teil es ist.
 
 Aktuell gibt es **einen** Klassifikations-Lauf:
 `projectV1/classification/` mit den **19 Klassen aus `Legosteine_comp`**
-(`yolo26m-cls.pt`). Der frühere 448-Klassen-Lauf (`cls_yolo26m_clean`) und
-sein Datensatz `cls_clean` wurden auf Wunsch gelöscht; die Ergebnisse in
-diesem README sind historisch und beschreiben die damalige Pipeline.
+(`yolo26m-cls.pt`), ausgeliefert als
+`projectV1/models/cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt`.
+Aktuelle Doku: `projectV1/classification/README.md` und
+`projectV1/models/README.md`.
+
+Der frühere 448-Klassen-Lauf (`cls_yolo26m_clean`) und sein Datensatz
+`cls_clean` wurden auf Wunsch gelöscht; die Ergebnisse in diesem README sind
+historisch und beschreiben die damalige Pipeline.
 
 ## Ordnerstruktur
 
@@ -17,37 +22,37 @@ DSProjectLEGO/
 ├── .datasets/05 - dataset/photos/   Rohdaten: 52.597 Studiofotos, 447 Klassenordner
 ├── Legosteine_comp/                 Rohdaten: 104 handgelabelte echte Crops, 19 Klassen
 ├── multi_lego_yolo/                 Testset: 73 Handyfotos + Boxen (Klasse 0)
+├── yolo26m-cls.pt                   Basisgewichte (einmal geladen, wiederverwendet)
 │
 ├── projectV1/
+│   ├── classification/              ★ aktueller Klassifikations-Trainingsordner
+│   │   ├── build_dataset.py         baut data/ aus Legosteine_comp (70/20/10)
+│   │   ├── train.py                 Training, veröffentlicht nach models/
+│   │   ├── test.py                  Split-Metrik oder Bild-/Ordner-Inferenz
+│   │   ├── data/                    GENERIERT: 195/20/19 Bilder, 19 Klassen
+│   │   └── runs/                    GENERIERT: Lauf + eval_val/eval_test
+│   ├── models/                      ★ benannte Modelle mit Herkunft
+│   │   ├── publish.py               Lauf -> cls_legosteine-19_yolo26m-cls_224_<datum>.pt
+│   │   ├── manifest.json            alle Modelle, Metriken, Hashes
+│   │   └── cls_*.pt + cls_*.json    Artefakt + Sidecar (siehe models/README.md)
 │   ├── backend/
-│   │   ├── dataset/
-│   │   │   ├── build_fast_cls.py        baut den Trainingsdatensatz
-│   │   │   ├── audit_dataset.py         Duplikate / Label-Konflikte / Auflösung
-│   │   │   ├── find_class_outliers.py   Ausreißer pro Klasse (dHash-Modoid)
-│   │   │   └── make_conflict_sheets.py  visuelle Kontaktabzüge der Konflikte
-│   │   ├── train/
-│   │   │   └── train_yolo26m_cls.py     ★ Training des Modells
-│   │   ├── eval/
-│   │   │   ├── eval_cls.py              Top-1/Top-5, pro Klasse, Konfusionen
-│   │   │   └── report_cls.py            Markdown-/PNG-Report
-│   │   └── inference/
-│   │       └── classify_boxes.py        Boxen ausschneiden + klassifizieren
-│   ├── dataset/
-│   │   ├── generic/                     Handyfotos + JSON-Boxen (127 Training, 73 Test)
-│   │   ├── cls_clean/                   GENERIERT: aktueller Trainingsdatensatz
-│   │   └── object_det/                  leer, für spätere Detektion
-│   ├── runs/
-│   │   ├── cls_yolo26m_clean/           GENERIERT: aktueller Trainingslauf
-│   │   └── audit_05/                    GENERIERT: Qualitätsberichte der Rohdaten
+│   │   ├── object_detection/        Detektion: split_datasaet.py, train.py, test.py
+│   │   ├── dataset/                 alte 448-Klassen-Aufbereitung (historisch)
+│   │   ├── train/                   alter 448-Klassen-Lauf (historisch, Datensatz gelöscht)
+│   │   ├── eval/                    eval_cls.py, report_cls.py, test_random_samples.py
+│   │   └── inference/               classify_boxes.py (Boxen ausschneiden + klassifizieren)
+│   ├── dataset/generic/             Handyfotos + JSON-Boxen (Detektion)
+│   ├── UI/streamlit_UI.py           Demo-Oberfläche
 │   └── README.md
 │
-├── helper/                          Detektor `best.pt`, Auto-Labeling-Werkzeuge
-└── yolo26m-cls.pt                   Basisgewichte für das Training
+└── helper/                          Detektor `best.pt` (Herkunft undokumentiert), Auto-Labeling
 ```
 
 **Rohdaten ≠ generiert:** `.datasets/`, `Legosteine_comp/`, `generic/` und
-`multi_lego_yolo/` sind Quellen und bleiben. `cls_clean/` und `runs/` werden
-jederzeit aus den Quellen neu erzeugt und sind gitignored.
+`multi_lego_yolo/` sind Quellen und bleiben. `classification/data/` und
+`classification/runs/` werden jederzeit aus den Quellen neu erzeugt und sind
+gitignored. `models/*.pt` sind ebenfalls gitignored; versioniert werden nur
+`publish.py`, `manifest.json` und die `.json`-Sidecars.
 
 ## Datenquellen
 

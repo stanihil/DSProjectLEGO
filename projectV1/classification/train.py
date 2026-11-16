@@ -14,6 +14,7 @@ Beispiel:
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from ultralytics import YOLO
@@ -39,6 +40,10 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--lr0", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--dataset", default="legosteine-19",
+                    help="Kurzname fuer den Dateinamen des Modells")
+    ap.add_argument("--no-publish", dest="publish", action="store_false",
+                    help="nicht nach projectV1/models/ kopieren")
     args = ap.parse_args()
 
     data = args.data.resolve()
@@ -71,6 +76,12 @@ def main() -> int:
     )
     print(f"\nLauf: {args.project.resolve() / args.name}")
     print(f"Best: {args.project.resolve() / args.name / 'weights' / 'best.pt'}")
+
+    if args.publish:
+        sys.path.insert(0, str(HERE.parent / "models"))
+        from publish import publish
+
+        publish(args.project.resolve() / args.name, dataset=args.dataset)
     return 0
 
 

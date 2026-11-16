@@ -15,7 +15,7 @@ model.train(data=".../classification/data", epochs=100, device="mps", ...)
 ```
 projectV1/classification/
 ├── build_dataset.py     # baut data/ aus Legosteine_comp (70/20/10)
-├── train.py             # ein model.train(...)
+├── train.py             # ein model.train(...) + publish nach models/
 ├── test.py              # Split auswerten oder Bilder klassifizieren
 ├── data/
 │   ├── train/<teilenummer>/*.jpg
@@ -33,6 +33,18 @@ projectV1/classification/
     ├── eval_val/           # test.py --split val
     └── eval_test/          # test.py --split test
 ```
+
+Das ausgelieferte Modell liegt nicht in `runs/`, sondern mit sprechendem
+Namen in `projectV1/models/`:
+
+```
+cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt
+cls_legosteine-19_yolo26m-cls_224_2026-11-16.json
+```
+
+Schema, Manifest und `publish.py` stehen in `projectV1/models/README.md`.
+`train.py` veröffentlicht den Lauf automatisch (`--no-publish` schaltet das
+ab), `test.py --weights latest` nimmt das zuletzt veröffentlichte Modell.
 
 ## 1. Datensatz bauen
 
@@ -80,6 +92,9 @@ Stein ist ein anderes Teil.
 # Top-1/Top-5 auf einem Split (schreibt nach runs/eval_<split>/)
 python projectV1/classification/test.py --split test
 
+# zuletzt veröffentlichtes Modell statt Lauf-Gewichte
+python projectV1/classification/test.py --split test --weights latest
+
 # Einzelbild oder Ordner, beschriftete Kopien + CSV
 python projectV1/classification/test.py --source Legosteine_comp/3002
 python projectV1/classification/test.py --source multi_lego_yolo
@@ -90,7 +105,8 @@ Bild-Variante: `runs/predict/` mit beschrifteten JPGs und
 
 ## Ergebnis
 
-Lauf: `runs/yolo26m_cls_legosteine/weights/best.pt`
+Modell: `projectV1/models/cls_legosteine-19_yolo26m-cls_224_2026-11-16.pt`
+(Kopie von `runs/yolo26m_cls_legosteine/weights/best.pt`, SHA-256 im Sidecar)
 
 | Split | Bilder | Top-1 | Top-5 |
 |---|---|---|---|

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 from pathlib import Path
 
 import numpy as np
@@ -35,10 +36,22 @@ def font(size: int = 18):
     return ImageFont.load_default()
 
 
+def resolve_weights(weights: Path) -> Path:
+    """``--weights latest`` nimmt das zuletzt veroeffentlichte Modell."""
+    if str(weights).lower() != "latest":
+        return weights
+    manifest = HERE.parent / "models" / "manifest.json"
+    if not manifest.is_file():
+        raise SystemExit("Kein models/manifest.json – noch nichts veröffentlicht.")
+    artifacts = json.loads(manifest.read_text())["artifacts"]
+    return HERE.parent / "models" / artifacts[-1]["file"]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Klassifikator testen.")
     ap.add_argument("--weights", type=Path,
-                    default=HERE / "runs/yolo26m_cls_legosteine/weights/best.pt")
+                    default=HERE / "runs/yolo26m_cls_legosteine/weights/best.pt",
+                    help="Pfad oder 'latest' (zuletzt veröffentlichtes Modell)")
     ap.add_argument("--data", type=Path, default=HERE / "data")
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
     ap.add_argument("--source", type=Path, default=None,
@@ -48,7 +61,9 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=HERE / "runs/predict")
     args = ap.parse_args()
 
-    model = YOLO(str(args.weights))
+    weights = resolve_weights(args.weights)
+    print(f"Modell: {weights}")
+    model = YOLO(str(weights))
 
     if args.source is None:
         metrics = model.val(data=str(args.data.resolve()), split=args.split,
