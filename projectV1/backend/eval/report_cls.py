@@ -11,7 +11,7 @@ Quellen:
 Aufruf:
 
     python projectV1/backend/eval/report_cls.py \
-        --run projectV1/runs/cls_yolo26s_447_5e --split test
+        --run projectV1/runs/cls_yolo26m_clean --split test
 
 Ausgabe:
 

@@ -15,8 +15,8 @@ Beispiele:
 
     python projectV1/backend/inference/classify_boxes.py \
         --images multi_lego_yolo \
-        --weights projectV1/runs/cls_fast_448_10e/weights/best.pt \
-        --out projectV1/runs/infer_multi
+        --weights projectV1/runs/cls_yolo26m_clean/weights/best.pt \
+        --out projectV1/runs/cls_yolo26m_clean/infer_multi
 
     # ohne vorhandene txt-Boxen: Detektor als Box-Vorschlag nutzen
     python projectV1/backend/inference/classify_boxes.py \

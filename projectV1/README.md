@@ -1,255 +1,293 @@
-# projectV1 – Klassifikations-Pipeline
+# projectV1 – LEGO-Teilklassifikation
 
-Dieser Ordner enthält die aufgeräumte Neuimplementierung. Der erste Schritt ist
-das Klassifikationsmodell `yolo26s-cls` auf den Einzelstein-Bildern aus
-`.datasets/05 - dataset/photos`.
+Ziel: ein Klassifikator, der **einzelne LEGO-Teile** auf Teilenummern abbildet
+(z. B. `3001`, `3069b`, `4073`). Der Detektor findet die Boxen auf einem
+Handyfoto, der Klassifikator sagt pro Box, welches Teil es ist.
 
-## Daten
+Aktuell gibt es **einen** sauberen Trainingslauf: `cls_yolo26m_clean`
+(`yolo26m-cls.pt`, 448 Klassen). Alle alten Datensätze, Runs und Experimente
+wurden entfernt.
+
+## Ordnerstruktur
+
+```
+DSProjectLEGO/
+├── .datasets/05 - dataset/photos/   Rohdaten: 52.597 Studiofotos, 447 Klassenordner
+├── Legosteine_comp/                 Rohdaten: 104 handgelabelte echte Crops, 19 Klassen
+├── multi_lego_yolo/                 Testset: 73 Handyfotos + Boxen (Klasse 0)
+│
+├── projectV1/
+│   ├── backend/
+│   │   ├── dataset/
+│   │   │   ├── build_fast_cls.py        baut den Trainingsdatensatz
+│   │   │   ├── audit_dataset.py         Duplikate / Label-Konflikte / Auflösung
+│   │   │   ├── find_class_outliers.py   Ausreißer pro Klasse (dHash-Modoid)
+│   │   │   └── make_conflict_sheets.py  visuelle Kontaktabzüge der Konflikte
+│   │   ├── train/
+│   │   │   └── train_yolo26m_cls.py     ★ Training des Modells
+│   │   ├── eval/
+│   │   │   ├── eval_cls.py              Top-1/Top-5, pro Klasse, Konfusionen
+│   │   │   └── report_cls.py            Markdown-/PNG-Report
+│   │   └── inference/
+│   │       └── classify_boxes.py        Boxen ausschneiden + klassifizieren
+│   ├── dataset/
+│   │   ├── generic/                     Handyfotos + JSON-Boxen (127 Training, 73 Test)
+│   │   ├── cls_clean/                   GENERIERT: aktueller Trainingsdatensatz
+│   │   └── object_det/                  leer, für spätere Detektion
+│   ├── runs/
+│   │   ├── cls_yolo26m_clean/           GENERIERT: aktueller Trainingslauf
+│   │   └── audit_05/                    GENERIERT: Qualitätsberichte der Rohdaten
+│   └── README.md
+│
+├── helper/                          Detektor `best.pt`, Auto-Labeling-Werkzeuge
+└── yolo26m-cls.pt                   Basisgewichte für das Training
+```
+
+**Rohdaten ≠ generiert:** `.datasets/`, `Legosteine_comp/`, `generic/` und
+`multi_lego_yolo/` sind Quellen und bleiben. `cls_clean/` und `runs/` werden
+jederzeit aus den Quellen neu erzeugt und sind gitignored.
+
+## Datenquellen
 
 | Quelle | Inhalt | Verwendung |
 |---|---|---|
-| `.datasets/05 - dataset/photos` | 447 Klassen, **52.597 Bilder**, ein Teil pro Bild | Klassifikations-Training (Pretraining) |
-| `.datasets/05 - dataset/renders` | 447 Klassen, **567.481 Renderings** (median nur ~186 px) | optionales Pretraining, noch nicht eingebunden |
-| `Legosteine_comp/` | 19 Klassen, 104 echte Fotos | späteres Real-Domain-Fine-Tuning |
-| `projectV1/dataset/generic/` | 200 echte Handyfotos, 1.346 Boxen | Detektion + Real-Domain-Fine-Tuning |
+| `.datasets/05 - dataset/photos` | 447 Klassen, 52.597 Studiofotos, ein Teil pro Bild | Haupt-Training |
+| `Legosteine_comp/` | 19 Klassen, 104 echte Crops (168×224), X-AnyLabeling-/YOLO-Labels | echte Crops im Training |
+| `projectV1/dataset/generic/` | 200 Handyfotos, 718 Boxen, handgezeichnete JSON-Labels | 127 Fotos → Training, 73 → Test |
+| `multi_lego_yolo/` | 73 Handyfotos, 630 Detektor-Boxen (Klasse 0) | **nur Test** |
 
-Der Klassenordner ist das Label. Für `yolo26s-cls` sind **keine Bounding-Boxen
-nötig**; die Ordnerstruktur `train/<klasse>/bild.jpg` genügt.
+Der Klassenordner ist das Label. `4073` fehlt im 05-Datensatz und kommt
+ausschließlich aus echten Crops; dadurch sind es **448 Klassen**.
 
-`4073` fehlt im 05-Datensatz komplett und muss später aus `Legosteine_comp` /
-`generic` ergänzt werden.
+## Datenqualität
+
+Vor dem Training wurde der 05-Datensatz geprüft (`audit_dataset.py`,
+`find_class_outliers.py`):
+
+| Prüfung | Ergebnis | Konsequenz |
+|---|---|---|
+| Kaputte Bilder | 0 von 52.597 | – |
+| Bilder unter 160 px Mindestkante | 1.259 (2,4 %) | ausgeschlossen (3 Klassen fallen auf ihre kleinen Bilder zurück) |
+| Byte-identische Duplikate | 0 | – |
+| Near-Duplicate-Paare (dHash ≤ 4) | 18.852 | kein Ausschluss; ohnehin durch gruppenbewussten Split getrennt |
+| Klassenübergreifende dHash-Konflikte | 6.764 Paare in 300 Klassen | **visuell geprüft: Fehlalarme** (ähnliche Form + weißer Hintergrund, z. B. Zahnrad vs. Reifen). Keine Fehllabels. |
+| Ausreißer pro Klasse (Abstand zum Medoid) | 623 Bilder (1,18 %) | visuell geprüft: nur Farbe/Unschärfe, keine falschen Labels |
+
+Fazit: Die Ordnerlabels sind verlässlich. Ausgeschlossen werden nur zu kleine
+Bilder, echte Testbilder und offensichtlich unbrauchbare Quellen.
 
 ## 1. Datensatz bauen
 
 ```bash
-python projectV1/backend/dataset/build_cls_dataset.py
-```
-
-Ergebnis (Symlinks, kein Kopieren):
-
-```
-projectV1/dataset/classification/
-  train/<klasse>/*.jpg   35.313 Bilder
-  val/<klasse>/*.jpg      8.401 Bilder
-  test/<klasse>/*.jpg     8.883 Bilder
-  classes.txt            447 Klassennamen (alphabetisch = Klassen-ID)
-  dataset_stats.json
-  manifest.csv
-```
-
-Der Split ist gruppenbewusst: Dateien mit gleichem `c<farbe>_<ansicht>`-Präfix
-landen im selben Split, damit near-duplicates nicht zwischen train und val
-lecken. Klassen mit weniger als fünf Gruppen werden zufällig gesplittet.
-`--no-group-split` erzwingt einen rein zufälligen Split, `--max-per-class`
-erzeugt kleine Smoke-Datensätze.
-
-Bekannte Einschränkungen des Datensatzes:
-
-* 284 Klassen sind gruppenbewusst, 163 Klassen (zu wenige Gruppen) zufällig
-  gesplittet – dort ist die Validierung optimistischer.
-* 33 Klassen haben 6 Bilder oder weniger, teils nur 1 Trainingsbild
-  (z. B. `15397`, `22888`, `24122`, `25893`). Für diese Klassen ist Top-1
-  kaum aussagekräftig; die mittlere Klassen-Accuracy im Eval-Report ist
-  dadurch pessimistischer als die globale Top-1.
-* Jede Klasse hat mindestens ein val- und ein test-Bild.
-* Alle Bilder sind Studio-/Freisteller-Aufnahmen. Das Modell lernt die
-  Domain „ein Teil, weißer/neutraler Hintergrund“, nicht „Teil im Regal“.
-
-## 2. Training
-
-```bash
-python projectV1/backend/train/train_cls.py \
-    --data projectV1/dataset/classification \
-    --epochs 15 --batch 64 --imgsz 224 --device mps
-```
-
-Wichtig: `fliplr=0.0` und `flipud=0.0`. LEGO hat gespiegelte Teilepaare
-(siehe `.datasets/archive/readme.txt`); horizontales/vertikales Spiegeln macht
-aus einem Teil ein anderes.
-
-Ergebnisse landen unter `projectV1/runs/` (gitignored).
-
-Gemessene Geschwindigkeit auf Apple M1 (8 GB, MPS):
-
-| Einstellung | pro Batch (64) | Bilder/s | 1 Epoche (35.313 Bilder) |
-|---|---|---|---|
-| `imgsz=224` | ~1,2 s Modell + ~0,25 s Daten | ~56 | ~11 min |
-| `imgsz=160` | ~0,7 s | ~92 | ~7 min |
-| `imgsz=224`, `batch=128` | ~36 s | ~3 | nicht nutzbar (Speicher) |
-
-Ultralytics setzt auf MPS/CPU die DataLoader-Worker intern auf 0
-(`engine/trainer.py`); eigene Worker bringen auf M1 nichts (gemessen:
-4 Worker = 112 Bilder/s, 8 Worker = 64 Bilder/s, 0 Worker = 260 Bilder/s
-nur fürs Laden). Das Laden ist mit ~0,25 s/Batch ohnehin nicht der Flaschenhals,
-die Rechenzeit des Modells schon.
-
-## 3. Schneller Lauf: `cls_fast` (beste Bilder + echte Fotos)
-
-Fuer einen schnellen, brauchbaren Zwischenstand statt des vollen 52k-Datensatzes:
-
-```bash
 python projectV1/backend/dataset/build_fast_cls.py \
-    --out projectV1/dataset/cls_fast --per-class 24 \
+    --out projectV1/dataset/cls_clean \
+    --per-class 40 --max-per-view 3 --min-side 160 \
     --exclude-list multi_lego_yolo --force
-
-python projectV1/backend/train/train_cls.py \
-    --data projectV1/dataset/cls_fast --epochs 10 --batch 64 --imgsz 224 \
-    --optimizer AdamW --lr0 0.001 --cos-lr --erasing 0.2 --hsv-s 0.4 \
-    --name cls_fast_448_10e
 ```
 
 Was der Builder macht:
 
-* **Beste Studio-Bilder:** nur Bilder mit Mindestkante 160 px, nach Aufloesung
-  sortiert, höchstens `n` pro Aufnahmegruppe `c<farbe>_<ansicht>` (Deckel passt
-  sich an, damit Klassen mit nur einer Ansicht nicht auf 2 Bilder fallen).
-* **Balance:** maximal 24 Bilder pro Klasse statt 1–692.
-* **Echte Fotos:** Crops aus `projectV1/dataset/generic` (JSON) und
-  `Legosteine_comp` (YOLO-txt), 2× oversampelt, nur im Train-Split.
-* **Leakage-Schutz:** `--exclude-list multi_lego_yolo` haelt die 73 Testbilder
-  aus dem Training (sie sind auch in `generic` enthalten).
-* **4073** fehlt in 05 und kommt ausschliesslich aus echten Crops →
-  **448 Klassen**.
+* **Beste Studio-Bilder:** nur Bilder mit Mindestkante 160 px, nach Auflösung
+  sortiert, höchstens 3 pro Aufnahmegruppe `c<farbe>_<ansicht>`.
+* **Balance:** maximal 40 Studio-Bilder pro Klasse (statt 1–899).
+* **Echte Fotos:** Crops aus `generic/` (JSON) und `Legosteine_comp/`
+  (YOLO-txt), 2× oversampelt, nur im Train-Split.
+* **Leakage-Schutz:** Die 73 Testbilder aus `multi_lego_yolo/` sind auch in
+  `generic/` enthalten und werden per Dateiname komplett aus dem Training
+  gehalten.
+* **Gruppenbewusster Split:** Alle Bilder einer Aufnahmegruppe landen im selben
+  Split (train/val/test), damit Near-Duplicates nicht zwischen Training und
+  Validierung lecken.
 
-Ergebnis: 8.679 train / 1.332 val / 1.188 test, jede Klasse in jedem Split.
+Ergebnis: **11.775 train / 2.263 val / 2.169 test**, 448 Klassen,
+jede Klasse in jedem Split. `dataset_stats.json` und `manifest.csv` liegen im
+Datensatzordner.
 
-Wichtig: `optimizer=AdamW, lr0=0.001`. Ultralytics' `optimizer=auto` hatte
-`lr0=7e-6` gewaehlt – damit war das Modell nach einer Epoche bei Top-1 1,6 %.
+## 2. Training
 
-## 4. Boxen klassifizieren (Multi-Stein-Bild)
+**Der Trainingscode ist `projectV1/backend/train/train_yolo26m_cls.py`.**
 
-`multi_lego_yolo/` enthaelt 73 Handyfotos mit 630 Boxen, alle Klasse 0
-(Boxen ohne Labels). `classify_boxes.py` schneidet jede Box aus, klassifiziert
-sie und schreibt Bilder + CSV:
+```bash
+source .venv/bin/activate
+python projectV1/backend/train/train_yolo26m_cls.py \
+    --data projectV1/dataset/cls_clean \
+    --model yolo26m-cls.pt \
+    --epochs 10 --imgsz 224 --batch 32 \
+    --name cls_yolo26m_clean
+```
+
+Das Skript macht alles in einem Durchlauf:
+
+1. prüft, dass train/val dieselben Klassen haben und keine Klasse leer ist,
+2. startet von `yolo26m-cls.pt` (ImageNet-vortrainiert, **nicht** vom alten
+   `best.pt`),
+3. trainiert mit AdamW (`lr0=1e-3`, Cosine, Weight-Decay `5e-4`),
+4. augmentiert nur Farbe/Scale/Translation/Erasing – **keine Spiegelung**
+   (`fliplr=0`, `flipud=0`), weil gespiegelte LEGO-Teilepaare die Klassen
+   ununterscheidbar machen,
+5. wertet nach dem Training `best.pt` auf `val` und `test` aus,
+6. schreibt `train_summary.json` mit Dauer, Sekunden/Epoche und Top-1/Top-5.
+
+Wichtige Argumente:
+
+| Argument | Default | Warum |
+|---|---|---|
+| `--model` | `yolo26m-cls.pt` | mittelgroßes Modell, passt zu 8 GB M1 |
+| `--imgsz` | 224 | gleiche Auflösung wie die Inferenz-Crops |
+| `--batch` | 32 | ~3,3 GB MPS-Speicher; 64 war in früheren Läufen zu viel |
+| `--epochs` | 10 | mit Cosine-LR und Pretraining ausreichend |
+| `--patience` | 4 | Early Stopping, falls Val nicht mehr steigt |
+| `--lr0` | 1e-3 | `optimizer=auto` wählte früher 7e-6 → Modell lernte nichts |
+| `--dropout` | 0.0 | weniger Regularisierung nötig, Daten sind sauber |
+
+Gemessene Geschwindigkeit auf Apple M1 (8 GB, MPS):
+**ca. 1,1 s/Batch → ca. 7 min/Epoche** (11.775 Bilder, Batch 32).
+Ultralytics setzt auf MPS die DataLoader-Worker intern auf 0; das Laden ist
+nicht der Flaschenhals.
+
+Ausgaben im Laufordner `projectV1/runs/cls_yolo26m_clean/`:
+
+```
+weights/best.pt      bester Checkpoint
+weights/last.pt      letzter Checkpoint
+results.csv          Loss/Accuracy pro Epoche
+args.yaml            vollständige Konfiguration
+train_summary.json   Dauer + Val/Test-Metriken
+```
+
+## 3. Evaluation
+
+```bash
+python projectV1/backend/eval/eval_cls.py \
+    --weights projectV1/runs/cls_yolo26m_clean/weights/best.pt \
+    --data projectV1/dataset/cls_clean --split test
+
+python projectV1/backend/eval/report_cls.py \
+    --run projectV1/runs/cls_yolo26m_clean --split test
+```
+
+`eval_cls.py` nutzt einen eigenen Predict-Loop (Ultralytics 8.4 hat
+`model.validator` entfernt) und schreibt `eval/metrics_test.json` +
+`eval/per_class_test.csv`. `report_cls.py` erzeugt daraus `report.md` und
+`report.png`.
+
+## 4. Handyfotos testen
+
+`multi_lego_yolo/` enthält 73 Handyfotos mit 630 Boxen (alle Klasse 0).
+`classify_boxes.py` schneidet jede Box aus, klassifiziert sie und vergleicht
+mit den JSON-Labels aus `generic/` (Zuordnung über IoU ≥ 0,35):
 
 ```bash
 python projectV1/backend/inference/classify_boxes.py \
     --images multi_lego_yolo \
-    --weights projectV1/runs/cls_fast_448_10e/weights/best.pt \
+    --weights projectV1/runs/cls_yolo26m_clean/weights/best.pt \
     --truth-json projectV1/dataset/generic \
-    --out projectV1/runs/infer_multi
+    --out projectV1/runs/cls_yolo26m_clean/infer_multi
 ```
 
-Ausgabe:
+Ausgabe: `predictions.csv`, `summary.csv`, `annotated/*.jpg`, `sheet.jpg`,
+`truth_eval.json/csv`.
 
-```
-predictions.csv     Bild, Box, xyxy, Teilenummer, Konfidenz, Top-5
-summary.csv         gezaehlte Teile pro Bild
-annotated/*.jpg     Boxen mit Teilenummer + Konfidenz
-sheet.jpg           4 Bilder als Kontaktabzug
-truth_eval.json/csv Trefferquote gegen die JSON-Labels (falls vorhanden)
-```
+## Aktueller Stand: `cls_yolo26m_clean`
 
-`--detector helper/best.pt` erzeugt Boxen, wenn keine `.txt` daneben liegt.
+Lauf: `yolo26m-cls.pt`, 448 Klassen, 10 Epochen, 224 px, Batch 32,
+AdamW `lr0=1e-3`, Cosine, `fliplr=0`/`flipud=0`, Datensatz `cls_clean`.
 
-### Ergebnis mit `cls_fast_448_10e` (Epoche 6)
+### Ergebnisse
 
 | Testset | Umfang | Top-1 | Top-5 |
 |---|---|---|---|
-| `cls_fast` Test-Split (Studiofotos) | 1.188 Bilder, 448 Klassen | **75,1 %** | **92,6 %** |
-| `multi_lego_yolo` (Handyfotos, Pile) | 73 Bilder, 626 Boxen | **36,1 %** | **74,0 %** |
+| `cls_clean` Test-Split (Studio, nie gesehen) | 2.169 Bilder, 448 Klassen | **84,6 %** | **95,7 %** |
+| `multi_lego_yolo` (73 Handyfotos, 626 Boxen) | echte Detektor-Boxen | **44,7 %** | **79,7 %** |
 
-Zuordnung zu den JSON-Labels ueber IoU ≥ 0,35 (626 von 630 Boxen zugeordnet).
-Die Boxen im Handyfoto-Test kommen vom Detektor und sind teilweise locker; sie
-enthalten Nachbarteile oder Hintergrund.
+Vergleich zum alten Lauf `cls_fast_448_10e` (yolo26s, gleicher Test):
 
-**Groesste Verwechslungen** (gleiche Bauform, andere Groesse):
+| Testset | alt Top-1 / Top-5 | neu Top-1 / Top-5 |
+|---|---|---|
+| Studio-Test-Split | 75,1 % / 92,6 % | **84,6 % / 95,7 %** |
+| Handyfotos (`multi_lego_yolo`) | 36,1 % / 74,0 % | **44,7 % / 79,7 %** |
+
+Die mittlere Top-1-Konfidenz auf den Handyfotos stieg von 0,60 auf **0,74**;
+nur 3 von 630 Boxen liegen unter 0,25 (vorher 24).
+
+### Trefferquote pro Testklasse (Handyfotos)
+
+| Klasse | Boxen | Top-1 alt | Top-1 neu |
+|---|---|---|---|
+| 4073 | 23 | 65 % | **96 %** |
+| 3020 | 25 | 52 % | **80 %** |
+| 3022 | 23 | 61 % | **78 %** |
+| 3005 | 62 | 44 % | **73 %** |
+| 54200 | 14 | 64 % | **71 %** |
+| 3023 | 35 | 54 % | **63 %** |
+| 3004 | 62 | 42 % | **56 %** |
+| 3001 | 44 | 23 % | **45 %** |
+| 3666 | 11 | – | 45 % |
+| 3003 | 54 | 56 % | 43 % |
+| 3710 | 25 | 60 % | 40 % |
+| 3002 | 48 | 23 % | **31 %** |
+| 3021 | 28 | 7 % | **29 %** |
+| 2654 | 31 | 52 % | 26 % |
+| 6215 | 28 | 7 % | **25 %** |
+| 3062 | 37 | 19 % | 19 % |
+| 3010 | 23 | 17 % | 13 % |
+| 3622 | 21 | 10 % | 5 % |
+| 3623 | 27 | 0 % | 4 % |
+
+`lego_brick` (4 Boxen) ist ein Papierkorb-Label ohne Teilenummer und `30062`
+hat 1 Box – beide zählen als Fehlklassen.
+
+### Häufigste Verwechslungen (neu)
 
 | Echt | Vorhergesagt | Anzahl |
 |---|---|---|
-| 3005 (1×1) | 54200 (Schraege) | 20 |
-| 3021 (2×3 Platte) | 3020 (2×4 Platte) | 18 |
-| 3623 | 3710 | 15 |
-| 3004 (1×2) | 3005 (1×1) | 14 |
-| 3062 | 6141 | 12 |
+| 3004 (1×2) | 3005 (1×1) | 17 |
+| 3062 (1×1 rund) | 4073 (Rundplatte) | 17 |
+| 3003 (2×2) | 3022 (2×2 Platte) | 15 |
+| 3010 (1×4) | 3004 (1×2) | 13 |
+| 3002 (2×3) | 3001 (2×4) | 10 |
 
-**Trefferquote der haeufigsten Testklassen:**
+Typisches Muster: Verwechslung **innerhalb derselben Baureihe** (Stein ↔ Platte,
+Länge 2 vs. 4). Top-5 deckt die meisten davon ab.
 
-| Klasse | Boxen | Top-1 |
-|---|---|---|
-| 4073 | 23 | 65 % |
-| 54200 | 14 | 64 % |
-| 3022 | 23 | 61 % |
-| 3710 | 25 | 60 % |
-| 3003 | 54 | 56 % |
-| 3023 | 35 | 54 % |
-| 2654 | 31 | 52 % |
-| 3020 | 25 | 52 % |
-| 3005 | 62 | 44 % |
-| 3004 | 62 | 42 % |
-| 3002 | 48 | 23 % |
-| 3001 | 44 | 23 % |
-| 3062 | 37 | 19 % |
-| 3010 | 23 | 17 % |
-| 3622 | 21 | 10 % |
-| 3021 | 28 | 7 % |
-| 6215 | 28 | 7 % |
-| 3623 | 27 | 0 % |
-
-`4073` (nur aus echten Crops gelernt) und `54200` treffen am besten – die
-Real-Domain-Crops wirken. Die Konfidenz ist schlecht kalibriert: bei Schwelle
-0,5 bleiben 63 % der Boxen mit 41 % Top-1; Top-5 ist die nutzbarere Ausgabe.
-
-**Zeiten:**
+### Zeiten
 
 | Schritt | Dauer |
 |---|---|
-| Datensatz bauen (`cls_fast`) | 25 s |
-| Training 6 Epochen (10 geplant) | 47 min 48 s |
-| Inferenz 630 Boxen | 45 s |
-| Evaluation Test-Split | 23 s |
+| Datensatz bauen (`cls_clean`) | 26 s |
+| Datenqualitäts-Audit (52.597 Bilder) | ~4 min |
+| Training 10 Epochen | 7 h 25 min (M1-Drosselung ab Epoche 6; ohne Drosselung ~1,5 h) |
+| Eval Test-Split (eigener Loop, 2.169 Bilder) | ~3 min |
+| Handyfoto-Test (630 Boxen) | ~2 min |
 
-Das Training wurde bei Epoche 7 durch macOS wegen Speicherdrucks beendet
-(SIGKILL, 8-GB-M1); `best.pt`/`last.pt` von Epoche 6 sind nutzbar. Die
-Val-Kurve war noch steigend (0,699 → 0,739).
+Die Trainingsdauer ist auf dem 8-GB-M1 stark thermisch limitiert; die Epochen
+1–5 liefen mit 7–15 min, die Epochen 6–7 mit 1,5–2,5 h.
 
-## 5. Evaluation
+### Schwächste Klassen (Studio-Test)
 
-```bash
-python projectV1/backend/eval/eval_cls.py \
-    --weights projectV1/runs/cls_fast_448_10e/weights/best.pt \
-    --data projectV1/dataset/cls_fast --split test
-```
+| Klasse | Bilder | Top-1 | Top-5 |
+|---|---|---|---|
+| 30165 | 9 | 0 % | 33 % |
+| 20482 | 6 | 0 % | 83 % |
+| 3640 | 6 | 0 % | 0 % |
+| 6157 | 5 | 0 % | 100 % |
+| 64683 | 5 | 0 % | 40 % |
+| 27940 | 4 | 0 % | 100 % |
+| 3676 | 4 | 0 % | 0 % |
+| 58176 | 4 | 0 % | 0 % |
 
-Schreibt `eval/metrics_test.json` (Top-1/Top-5, schlechteste 25 Klassen,
-häufigste Verwechslungen) und `eval/per_class_test.csv` neben den Gewichten.
-Die Auswertung nutzt einen eigenen Predict-Loop, weil Ultralytics 8.4
-`model.validator` nicht mehr bereitstellt.
+Alle haben ≤ 9 Trainingsbilder – die globale Top-1 von 84,6 % leidet an diesen
+zwanzig Mini-Klassen, die mittlere Klassen-Top-1 liegt bei 85,8 %.
 
-Daraus einen fertigen Report (Markdown + PNG-Tabellen) bauen:
+## Design-Entscheidungen
 
-```bash
-python projectV1/backend/eval/report_cls.py \
-    --run projectV1/runs/cls_yolo26s_447_5e --split test
-```
-
-Ergebnis: `report.md` und `report.png` im Lauf-Ordner – eine Tabelle pro
-Abschnitt (Konfiguration, Ergebnis, Trainingsverlauf, schlechteste/beste
-Klassen, häufigste Verwechslungen).
-
-## 6. Auto-Labeling (optional)
-
-`helper/label_dataset.py` ist die verallgemeinerte Version von
-`helper/auto_label_yolo.py`: Detektion → größte Box → YOLO-txt, mit Resume,
-Limit pro Klasse und Statistik.
-
-```bash
-python helper/label_dataset.py \
-    --src "Legosteine_comp" --out runs/labels_comp --preview 2
-```
-
-**Nicht** für den 05-Datensatz geeignet: `helper/best.pt` ist ein Detektor für
-die 19 eigenen Stein-Klassen. Auf einem Pilotlauf über 894 Bilder aus 05 wurden
-nur **52,8 %** der Bilder mit einer Box versehen, 46,4 % blieben leer, und die
-gefundenen Boxen lagen häufig nur auf Nupsis, Löchern oder Ecken statt auf dem
-ganzen Teil. Deshalb wird 05 für die Klassifikation ohne Boxen verwendet.
-
-## Nächste Schritte
-
-1. Epochen 7–10 nachziehen (`--batch 48` gegen den Speicherdruck) oder von
-   `best.pt` mit kleiner LR weiterfein-tunen; die Val-Kurve war noch steigend.
-2. Mehr echte Crops sammeln: die 20 Klassen mit Real-Crops (`4073`, `54200`)
-   treffen deutlich besser als reine Studio-Klassen.
-3. Groessen-Confusion entschaerfen: Boxen vor dem Klassifizieren auf ein
-   Quadrat padden (statt Center-Crop) und damit auch trainieren.
-4. Detektor (klassenagnostisch) + Klassifikator zur Inventar-Pipeline verbinden.
+1. **Saubere Daten statt maximaler Menge.** Der 05-Datensatz wird auf 40
+   Bilder/Klasse begrenzt, zu kleine Bilder fliegen raus, echte Testbilder
+   sind tabu.
+2. **Kein Weiter-Training des alten Modells.** Start immer von den offiziellen
+   `yolo26m-cls.pt`-Gewichten.
+3. **Keine Spiegel-Augmentierung.** LEGO hat chirale Teilepaare.
+4. **Gruppenbewusster Split.** Near-Duplicates aus derselben Aufnahme landen
+   nie in train und val gleichzeitig.
+5. **Echte Crops im Training.** `4073`, `54200` & Co. profitieren sichtbar von
+   Handyfotos; die 73 Testfotos bleiben trotzdem komplett draußen.

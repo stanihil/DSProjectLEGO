@@ -24,8 +24,8 @@ Zusaetzlich (nur train):
 Beispiel:
 
     python projectV1/backend/dataset/build_fast_cls.py \
-        --out projectV1/dataset/cls_fast --per-class 20 \
-        --exclude-list multi_lego_yolo --force
+        --out projectV1/dataset/cls_clean --per-class 40 \
+        --max-per-view 3 --exclude-list multi_lego_yolo --force
 """
 
 from __future__ import annotations
@@ -281,15 +281,15 @@ def main() -> int:
     ap.add_argument("--src05", type=Path, default=Path(".datasets/05 - dataset/photos"))
     ap.add_argument("--generic", type=Path, default=Path("projectV1/dataset/generic"))
     ap.add_argument("--legosteine", type=Path, default=Path("Legosteine_comp"))
-    ap.add_argument("--out", type=Path, default=Path("projectV1/dataset/cls_fast"))
-    ap.add_argument("--per-class", type=int, default=20, help="max. Studio-Bilder pro Klasse")
-    ap.add_argument("--max-per-view", type=int, default=2, help="max. Bilder pro c<farbe>_<ansicht>")
+    ap.add_argument("--out", type=Path, default=Path("projectV1/dataset/cls_clean"))
+    ap.add_argument("--per-class", type=int, default=40, help="max. Studio-Bilder pro Klasse")
+    ap.add_argument("--max-per-view", type=int, default=3, help="max. Bilder pro c<farbe>_<ansicht>")
     ap.add_argument("--min-side", type=int, default=160, help="min. Bildkante in px")
     ap.add_argument("--val-frac", type=float, default=0.1)
     ap.add_argument("--test-frac", type=float, default=0.1)
-    ap.add_argument("--crop-margin", type=float, default=0.08, help="Rand um echte Boxen")
+    ap.add_argument("--crop-margin", type=float, default=0.06, help="Rand um echte Boxen")
     ap.add_argument("--repeats", type=int, default=2, help="Oversampling der echten Crops")
-    ap.add_argument("--exclude-list", type=Path, default=None,
+    ap.add_argument("--exclude-list", type=Path, default=Path("multi_lego_yolo"),
                     help="Ordner mit Testbildern (*.jpg), die nicht ins Training duerfen")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--force", action="store_true")

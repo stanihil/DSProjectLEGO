@@ -4,8 +4,8 @@
 Aufruf:
 
     python projectV1/backend/eval/eval_cls.py \
-        --weights projectV1/runs/cls_fast_448_10e/weights/best.pt \
-        --data projectV1/dataset/cls_fast --split test
+        --weights projectV1/runs/cls_yolo26m_clean/weights/best.pt \
+        --data projectV1/dataset/cls_clean --split test
 
 Ausgabe (neben dem Modellordner):
 
