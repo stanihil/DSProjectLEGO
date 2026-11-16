@@ -22,6 +22,7 @@ DSProjectLEGO/
 ├── .datasets/05 - dataset/photos/   Rohdaten: 52.597 Studiofotos, 447 Klassenordner
 ├── Legosteine_comp/                 Rohdaten: 104 handgelabelte echte Crops, 19 Klassen
 ├── multi_lego_yolo/                 Testset: 73 Handyfotos + Boxen (Klasse 0)
+├── cuttet_multi_lego_yolo/          GENERIERT: 623 Crops aus den Handyfotos, 19 Klassen
 ├── yolo26m-cls.pt                   Basisgewichte (einmal geladen, wiederverwendet)
 │
 ├── projectV1/

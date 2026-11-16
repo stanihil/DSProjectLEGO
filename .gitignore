@@ -21,5 +21,6 @@ projectV1/dataset/cls_fast/
 projectV1/dataset/cls_clean/
 projectV1/classification/data/
 multi_lego_yolo/
+cuttet_multi_lego_yolo/
 
 projectV1/rebrickable_apikey.txt

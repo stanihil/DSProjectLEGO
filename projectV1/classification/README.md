@@ -145,6 +145,33 @@ Läufe sind gelöscht; reproduzierbar mit `--model`/`--seed`.
 - Die Testzahlen sind mit 19 Bildern so klein, dass ich das Modell über
   `val` ausgewählt habe; der Test dient nur der Kontrolle.
 
+## 4. Handyfoto-Crops aus `multi_lego_yolo`
+
+Zweite Datenbasis: dieselben Handyfotos, an den Boxen zugeschnitten und nach
+Teilenummer sortiert.
+
+```bash
+python projectV1/classification/cut_multi_lego_yolo.py --force
+```
+
+- Die Teilenummern stehen in `projectV1/dataset/generic/<name>.json`
+  (handgezeichnet); die `.txt` in `multi_lego_yolo` hat nur Klasse 0.
+- Geschnitten wird an der JSON-Box mit 6 % Rand. Die passende Detektor-Box
+  und ihr IoU stehen im `manifest.csv` (Median 1,00, Minimum 0,72).
+- Ergebnis: **623 Crops in 19 Klassen** in `cuttet_multi_lego_yolo/`, dazu
+  `classes.txt` und `manifest.csv`.
+- Übersprungen: 5 Boxen mit `lego_brick`/`30062` (keine Teilenummer) und
+  4 Detektor-Boxen ohne JSON-Partner.
+- `3001` ist enthalten, `3009` nicht (in den 73 Fotos nicht vorhanden).
+
+Als Datensatz nutzbar mit
+`build_dataset.py --source cuttet_multi_lego_yolo` (Bilder ohne `.txt` gelten
+dann als Ganzbild).
+
+> Achtung: Das sind genau die 73 Fotos, die bisher als unabhängiger
+> Handyfoto-Test dienten. Wer damit trainiert, hat danach keinen
+> unabhängigen Handyfoto-Test mehr.
+
 ## Hinweis zum alten 448-Klassen-Lauf
 
 Der frühere Datensatz `projectV1/dataset/cls_clean`, der Run
