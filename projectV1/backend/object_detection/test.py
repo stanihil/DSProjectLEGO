@@ -1,19 +1,19 @@
 from ultralytics import YOLO
 from PIL import Image
 
-model = YOLO("/Users/abdulbalhas/Desktop/uni/sem7/DS Projekt/project/DSProjectLEGO/runs/detect/models/yolo26s_obj_det_1stRun-6/weights/best.pt")
+model = YOLO("/Users/abdulbalhas/Desktop/uni/sem7/DS Projekt/project/DSProjectLEGO/runs/detect/yolo26s_obj_det_1stRun/weights/best.pt")
 
 
-results1 =model("/Users/abdulbalhas/Downloads/20261115_183744.jpg", save=True)
-results2 =model("/Users/abdulbalhas/Downloads/20261115_183751.jpg", save=True)
+results1 =model("/Users/abdulbalhas/Downloads/20261117_141928.jpg")
+results2 =model("/Users/abdulbalhas/Downloads/20261117_141847.jpg")
 
 a1 = results1[0].plot(
-    line_width=1,
+    line_width=2,
     font_size=4
 )
 a2 = results2[0].plot(
-    line_width=4,
-    font_size=10
+    line_width=2,
+    font_size=4
 )
 
 Image.fromarray(a1[...,::-1]).save("bild1.jpg")
