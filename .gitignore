@@ -24,3 +24,6 @@ multi_lego_yolo/
 cuttet_multi_lego_yolo/
 
 projectV1/rebrickable_apikey.txt
+
+#whitelist
+!/projectV1/backend/models/yolo26s_obj_det_1stRun
