@@ -1,9 +1,10 @@
-# Klassifikation – 19 Klassen aus `Legosteine_comp`
+# Klassifikation – 19 Klassen aus `Legosteine_comp`, 20 mit Handyfotos
 
 Eigenständiger Trainingsordner, aufgebaut wie
 `projectV1/backend/object_detection/`: Datensatz, Skripte und Läufe liegen
-zusammen. Trainiert wird ausschließlich auf den Klassen, die in
-`Legosteine_comp/` liegen.
+zusammen. Erstes Modell: 19 Klassen aus `Legosteine_comp/`. Zweites Modell
+(Abschnitt 5): dieselben Bilder plus die 623 Handyfoto-Crops aus
+`cuttet_multi_lego_yolo/` → 20 Klassen.
 
 ```python
 model = YOLO("yolo26s-cls.pt")
@@ -15,21 +16,20 @@ model.train(data=".../classification/data", epochs=100, device="mps", ...)
 ```
 projectV1/classification/
 ├── build_dataset.py     # baut data/ aus Legosteine_comp (70/20/10)
+├── cut_multi_lego_yolo.py  # schneidet die Handyfotos in Teilenummer-Ordner
 ├── train.py             # ein model.train(...) + publish nach models/
 ├── test.py              # Split auswerten oder Bilder klassifizieren
-├── data/
-│   ├── train/<teilenummer>/*.jpg
-│   ├── val/<teilenummer>/*.jpg
-│   ├── test/<teilenummer>/*.jpg
-│   ├── classes.txt      # 19 Klassen, alphabetisch
+├── evaluate.py          # Split auswerten: pro Klasse + Studio/Handy
+├── data/                # 19 Klassen, nur Legosteine_comp
+├── data_merged/         # 20 Klassen, beide Quellen (Abschnitt 5)
+│   ├── train|val|test/<teilenummer>/*.jpg
+│   ├── classes.txt
 │   ├── manifest.csv     # Quelle + crop/full je Bild
 │   ├── dataset_stats.json
-│   └── data.yaml        # Doku/Klassenliste (Ultralytics will den Ordner)
+│   └── data.yaml
 └── runs/
-    ├── cls_s_seed2/        # veröffentlichter Lauf
-    │   ├── weights/best.pt
-    │   ├── results.csv / results.png
-    │   └── confusion_matrix*.png
+    ├── cls_s_seed2/        # veröffentlichter Lauf (19 Klassen)
+    ├── cls_legosteine_s_merged/  # Weiter-Training (20 Klassen)
     ├── eval_val/           # test.py --split val
     └── eval_test/          # test.py --split test
 ```
@@ -38,8 +38,8 @@ Das ausgelieferte Modell liegt nicht in `runs/`, sondern mit sprechendem
 Namen in `projectV1/models/`:
 
 ```
-cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt
-cls_legosteine-19_yolo26s-cls_224_2026-11-16.json
+cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt   # nur Legosteine_comp
+cls_legosteine-20_yolo26s-cls_224_2026-11-16.pt   # + Handyfoto-Crops
 ```
 
 Schema, Manifest und `publish.py` stehen in `projectV1/models/README.md`.
@@ -171,6 +171,69 @@ dann als Ganzbild).
 > Achtung: Das sind genau die 73 Fotos, die bisher als unabhängiger
 > Handyfoto-Test dienten. Wer damit trainiert, hat danach keinen
 > unabhängigen Handyfoto-Test mehr.
+
+## 5. Zweites Training: beide Quellen gemischt (20 Klassen)
+
+```bash
+python projectV1/classification/build_dataset.py \
+    --source Legosteine_comp --source cuttet_multi_lego_yolo \
+    --group-by-source --repeats 1 \
+    --out projectV1/classification/data_merged --force
+
+python projectV1/classification/train.py \
+    --model projectV1/models/cls_legosteine-19_yolo26s-cls_224_2026-11-16.pt \
+    --data projectV1/classification/data_merged \
+    --name cls_legosteine_s_merged --dataset legosteine-20 --arch yolo26s-cls \
+    --lr0 5e-4 --epochs 60 --patience 15
+```
+
+- **20 Klassen** = Vereinigung beider Quellen: alle 19 aus `Legosteine_comp`
+  plus `3001` (nur in den Handyfotos), `3009` bleibt (nur im Studio).
+- **Split nach Quellfoto** (`--group-by-source`): ein Foto liefert bis zu 51
+  Crops, die dürfen nicht auf beide Seiten verteilt werden. Ergebnis:
+  508 / 144 / 75, **kein Foto in zwei Splits**.
+- Zusätzlich **Mindestquote 50 % pro Klasse im Training** (aufgerundet) und
+  je ein Bild in `val`/`test`. `3009` hat nur 5 Bilder → 3/1/1.
+- **Warm Start** vom 19-Klassen-Modell, `lr0=5e-4` (halbe Lernrate, weil der
+  Rumpf schon trainiert ist). Der Klassifikationskopf wird wegen 19 → 20
+  Klassen neu initialisiert, alles davor kommt aus den alten Gewichten.
+- Keine Spiegelung wie oben.
+
+Modell: `projectV1/models/cls_legosteine-20_yolo26s-cls_224_2026-11-16.pt`
+
+| Split | Bilder | Top-1 | Top-5 |
+|---|---|---|---|
+| `val` | 144 | **0,715** | **0,938** |
+| `test` | 75 | **0,720** | **0,973** |
+
+27 Epochen (bestes bei 12), Early Stop, 4,5 min auf MPS.
+
+Nach Herkunft auf demselben Testsplit:
+
+| Modell | gesamt | Handyfotos (62) | Studio (13) |
+|---|---|---|---|
+| neu, 20 Klassen | **0,720** | **0,677** | 0,923 |
+| alt, 19 Klassen | 0,253 | 0,097 | 1,000 |
+
+Der Vergleich ist nur bei den Handyfotos sauber: die hat das alte Modell nie
+gesehen. Dort springt es von 0,097 auf 0,677. Die Studio-Spalte ist beim
+alten Modell geschönt – 11 der 13 Fotos waren in seinem Training. Sauber
+ist für das neue Modell nur die eigene Spalte, und da bleiben die
+Studio-Bilder bei 0,923: das Handyfoto-Training hat sie nicht kaputtgemacht.
+
+### Was hier nicht stimmt(e)
+
+- **Der alte `data/test` ist verbraucht:** 15 seiner 19 Fotos liegen jetzt im
+  Training. Die früheren 0,895 lassen sich mit diesem Modell nicht mehr
+  nachprüfen, und ein Vergleich „neues Modell auf `data/test`“ wäre wertlos.
+- Handyfoto-Zahlen beruhen auf **73 Fotos**; alle Crops eines Fotos hängen
+  zusammen (gleiches Licht, gleicher Hintergrund). 0,677 heißt „auf diesen
+  73 Fotos“, nicht „auf Handyfotos allgemein“.
+- `3001` hat 4 Testbilder, `3009` genau 1. Ein Fehler ist dort 25 bzw. 100
+  Prozentpunkte.
+- Die häufigsten Verwechslungen sind Nachbargrößen: `3001`↔`3002`/`3004`,
+  `3020`↔`3021`, `3622`↔`3710`. Plausibel, aber mit dieser Datenmenge nicht
+  behebbar.
 
 ## Hinweis zum alten 448-Klassen-Lauf
 
